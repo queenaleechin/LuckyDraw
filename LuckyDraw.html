@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Draw System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 50%, #0a0a2e 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border-bottom: 2px solid gold;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: gold;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* ===== LEFT PANEL - Winners ===== */
+        .winners-panel {
+            width: 260px;
+            min-width: 260px;
+            flex: 0 0 260px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .winners-panel.hidden-for-high-prize {
+            display: none;
+        }
+
+        .winners-panel h2 {
+            color: gold;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .winners-scroll {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .winner-entry {
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            animation: slideIn 0.5s ease;
+        }
+
+        .winner-entry-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .winner-entry .prize-img-thumb {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid rgba(255,215,0,0.4);
+            flex-shrink: 0;
+        }
+
+        .winner-entry-info {
+            flex: 1;
+        }
+
+        .winner-entry .prize-round {
+            font-size: 0.68em;
+            color: gold;
+            font-weight: bold;
+        }
+
+        .winner-entry .prize-name-tag {
+            font-size: 0.72em;
+            color: #ffcc44;
+            margin-top: 1px;
+        }
+
+        .winner-entry .winner-name {
+            font-size: 0.82em;
+            color: white;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        .winner-round-group .winner-entry-header {
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .winner-group-names {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .winner-group-name {
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .panel-btn {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-top: 6px;
+            transition: all 0.3s;
+            border: 1px solid;
+            flex-shrink: 0;
+        }
+
+        .export-btn {
+            background: rgba(0, 200, 81, 0.15);
+            border-color: rgba(0, 200, 81, 0.4);
+            color: #88ff88;
+        }
+
+        .export-btn:hover { background: rgba(0, 200, 81, 0.35); }
+
+        .clear-winners-btn {
+            background: rgba(255, 50, 50, 0.15);
+            border-color: rgba(255, 50, 50, 0.4);
+            color: #ff8888;
+        }
+
+        .clear-winners-btn:hover { background: rgba(255, 50, 50, 0.35); }
+
+        /* ===== CENTER PANEL ===== */
+        .center-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Stats */
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .stat-item .stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.72em;
+            color: #aaa;
+        }
+
+        /* Prize Setup */
+        .prize-section {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 18px;
+        }
+
+        .prize-section.catalog-mode {
+            padding: 12px 18px;
+        }
+
+        .prize-catalog-status {
+            color: #ccc;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .prize-catalog-status strong { color: gold; }
+
+        .prize-section h3 {
+            color: gold;
+            margin-bottom: 14px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .prize-upload-area {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .prize-image-display {
+            width: 130px;
+            height: 130px;
+            border: 2px dashed rgba(255, 215, 0, 0.5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: rgba(0,0,0,0.3);
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .prize-image-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .prize-image-display .no-image {
+            color: #666;
+            font-size: 0.78em;
+            text-align: center;
+            padding: 10px;
+            line-height: 1.6;
+        }
+
+        .prize-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .prize-name-input {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 0.9em;
+            width: 210px;
+        }
+
+        .prize-name-input::placeholder { color: #777; }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 9px 16px;
+            background: linear-gradient(135deg, #3a3a7a, #5a5a9a);
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82em;
+            transition: all 0.3s;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .file-input-label:hover {
+            background: linear-gradient(135deg, #5a5a9a, #7a7aba);
+            transform: translateY(-1px);
+        }
+
+        .file-input-label.green {
+            background: linear-gradient(135deg, #1a5a3a, #2a7a5a);
+        }
+
+        .file-input-label.green:hover {
+            background: linear-gradient(135deg, #2a7a5a, #3a9a7a);
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .image-gallery p {
+            color: gold;
+            font-size: 0.78em;
+        }
+
+        .gallery-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-height: 130px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .gallery-img {
+            width: 58px;
+            height: 58px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .gallery-img:hover { border-color: rgba(255,215,0,0.6); transform: scale(1.05); }
+        .gallery-img.selected { border-color: gold; box-shadow: 0 0 8px rgba(255,215,0,0.6); }
+
+        /* ===== PRIZE REVEAL OVERLAY ===== */
+        .prize-reveal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.88);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 25px;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .prize-reveal-overlay.show {
+            display: flex;
+            animation: overlayFadeIn 0.4s ease;
+        }
+
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .prize-reveal-content {
+            text-align: center;
+            animation: prizeRevealPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reveal-rolling-display {
+            display: none;
+            width: min(380px, 100%);
+            min-height: 84px;
+            padding: 16px 12px;
+            margin: 12px auto 0;
+        }
+
+        .reveal-rolling-display .rolling-name.multi {
+            font-size: 1em;
+        }
+
+        .prize-result-layout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+        }
+
+        .prize-result-side {
+            width: min(760px, 55vw);
+            min-width: 460px;
+        }
+
+        @keyframes prizeRevealPop {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .prize-reveal-label {
+            font-size: 1.2em;
+            color: #aaa;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .prize-reveal-image {
+            width: min(380px, 80vw);
+            height: min(380px, 80vw);
+            object-fit: cover;
+            border-radius: 20px;
+            border: 4px solid gold;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6), 0 0 120px rgba(255, 215, 0, 0.2);
+            animation: prizeGlow 2s infinite alternate;
+        }
+
+        @keyframes prizeGlow {
+            from { box-shadow: 0 0 40px rgba(255,215,0,0.5), 0 0 80px rgba(255,215,0,0.2); }
+            to   { box-shadow: 0 0 80px rgba(255,215,0,0.9), 0 0 160px rgba(255,215,0,0.4); }
+        }
+
+        .prize-reveal-no-image {
+            width: min(380px, 80vw);
+            height: min(380px, 80vw);
+            border-radius: 20px;
+            border: 4px solid gold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6em;
+            background: rgba(255,215,0,0.05);
+        }
+
+        .prize-reveal-name {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 30px rgba(255,215,0,0.8);
+            margin-top: 20px;
+            letter-spacing: 2px;
+        }
+
+        .prize-reveal-subtitle {
+            font-size: 1em;
+            color: #ccc;
+            margin-top: 8px;
+        }
+
+        .btn-start-draw {
+            padding: 16px 50px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+            box-shadow: 0 6px 25px rgba(255,215,0,0.5);
+            animation: btnPulse 1.5s infinite alternate;
+        }
+
+        @keyframes btnPulse {
+            from { box-shadow: 0 6px 25px rgba(255,215,0,0.4); transform: scale(1); }
+            to   { box-shadow: 0 8px 40px rgba(255,215,0,0.8); transform: scale(1.03); }
+        }
+
+        .btn-start-draw:hover {
+            transform: scale(1.08) !important;
+        }
+
+        /* Draw Area */
+        .draw-area {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px 4px;
+            text-align: center;
+        }
+
+        .inline-prize-preview {
+            display: none;
+            margin-bottom: 18px;
+        }
+
+        .inline-prize-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: center;
+            gap: 28px;
+            width: 100%;
+        }
+
+        #inlineImageWrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 480px;
+        }
+
+        .inline-prize-results {
+            width: 100%;
+            max-width: 460px;
+            justify-self: center;
+            min-width: 0;
+            min-height: 430px;
+        }
+
+        .inline-prize-image {
+            width: min(360px, 70vw);
+            height: min(360px, 70vw);
+            border-radius: 12px;
+        }
+
+        .inline-prize-preview > .prize-reveal-name {
+            font-size: 1.8em;
+            font-weight: 800;
+            color: #ffe45c;
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 28px rgba(255, 140, 0, 0.45);
+            letter-spacing: 1px;
+            margin: 0 0 12px;
+            animation: prizeTitlePulse 1.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes prizeTitlePulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.04); }
+        }
+
+        .draw-mode-label {
+            color: #aaa;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+
+        .rolling-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid gold;
+            border-radius: 15px;
+            padding: 10px 12px;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rolling-display::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,215,0,0.04) 0%, transparent 70%);
+            animation: bgPulse 2s infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .rolling-name {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            z-index: 1;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+
+        .rolling-name.multi {
+            font-size: 0.95em;
+        }
+
+        /* Winner Announcement */
+        .winner-announcement {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            min-height: 370px;
+        }
+
+        .winner-announcement.show { display: flex; }
+
+        .winner-names-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(160px, 1fr));
+            gap: 10px;
+            padding: 4px;
+            width: 100%;
+            min-height: 294px;
+            align-content: start;
+        }
+
+        .announce-prize-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,215,0,0.08);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 12px;
+            padding: 12px 20px;
+        }
+
+        .announce-prize-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid gold;
+        }
+
+        .announce-prize-info h3 {
+            color: gold;
+            font-size: 1em;
+        }
+
+        .announce-prize-info p {
+            color: #ccc;
+            font-size: 0.8em;
+            margin-top: 3px;
+        }
+
+        .congrats-text {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 15px rgba(255,215,0,0.6);
+            min-height: 37px;
+        }
+
+        @keyframes congratsPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .winner-badge {
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.15));
+            border: 2px solid gold;
+            border-radius: 25px;
+            padding: 10px 16px;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            font-weight: bold;
+            color: white;
+            overflow-wrap: anywhere;
+            width: 100%;
+            animation: badgePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .winner-badge.high-prize-winner {
+            font-size: 1.45em;
+            min-height: 68px;
+            border-width: 3px;
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+        }
+
+        @media (max-width: 700px) {
+            .prize-result-layout {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .prize-result-side {
+                width: min(360px, 85vw);
+                min-width: 0;
+            }
+        }
+
+        @keyframes badgePop {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
+
+        .btn-draw1 {
+            background: linear-gradient(135deg, #ff6b35, #f7c59f);
+            color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(255,107,53,0.4);
+        }
+
+        .btn-draw1:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,107,53,0.6);
+        }
+
+        .btn-draw10 {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+        }
+
+        .btn-draw10:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,215,0,0.6);
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #00c851, #007e33);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,200,81,0.4);
+            display: none;
+        }
+
+        .btn-confirm.show { display: inline-block; }
+        .btn-confirm:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,200,81,0.6); }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #4a4a8a, #6a6aaa);
+            color: white;
+            box-shadow: 0 4px 15px rgba(74,74,138,0.4);
+        }
+
+        .btn-reset:hover:not(:disabled) { transform: translateY(-3px); }
+
+        /* ===== RIGHT PANEL - Participants ===== */
+        .participants-panel {
+            width: 220px;
+            min-width: 220px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .participants-panel h2 {
+            color: gold;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .participants-scroll {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .participant-item {
+            padding: 5px 6px;
+            font-size: 0.78em;
+            color: #ccc;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .participant-item .num {
+            color: rgba(255,215,0,0.45);
+            font-size: 0.72em;
+            min-width: 22px;
+        }
+
+        .participant-item.removed {
+            text-decoration: line-through;
+            color: #444;
+            opacity: 0.5;
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            top: -15px;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.25); border-radius: 4px; }
+
+        .no-winners {
+            color: #555;
+            font-size: 0.82em;
+            text-align: center;
+            padding: 25px 10px;
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .main-container { flex-direction: column; }
+            .winners-panel, .participants-panel {
+                width: 100%;
+                flex: 0 1 auto;
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .inline-prize-details { grid-template-columns: 1fr; gap: 8px; }
+            .inline-prize-results { width: min(100%, 460px); }
+            .winner-names-list { grid-template-columns: 1fr; }
+            #inlineImageWrap { min-height: 0; }
+            .inline-prize-results { min-height: 0; }
+            .winner-announcement { min-height: 0; }
+            .winner-names-list { min-height: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>🎉 LUCKY DRAW 🎉</h1>
+    <p>Spin the wheel of fortune — Good luck to all participants!</p>
+</div>
+
+<!-- PRIZE REVEAL OVERLAY (shown before draw starts) -->
+<div class="prize-reveal-overlay" id="prizeRevealOverlay">
+    <div class="prize-reveal-content">
+        <div class="prize-reveal-label">✨ Tonight's Prize ✨</div>
+        <div class="prize-reveal-name" id="revealPrizeName">Lucky Prize</div>
+        <div class="prize-reveal-subtitle" id="revealPrizeSubtitle">Drawing <span id="revealDrawCount">1</span> winner(s)</div>
+        <div class="prize-result-layout">
+            <div id="revealImageWrap">
+                <div class="prize-reveal-no-image" id="revealNoImage">🎁</div>
+                <img id="revealPrizeImage" class="prize-reveal-image" src="" alt="Prize" style="display:none;">
+            </div>
+            <div class="prize-result-side">
+                <div class="rolling-display reveal-rolling-display" id="overlayRollingDisplay">
+                    <div class="rolling-name" id="overlayRollingName">Ready to draw!</div>
+                </div>
+                <div class="winner-announcement" id="winnerAnnouncement">
+                    <div class="congrats-text">🎊 CONGRATULATIONS! 🎊</div>
+                    <div class="winner-names-list" id="winnerNamesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn-start-draw" id="overlayBtnStartDraw" onclick="beginActualDraw()">🎰 START DRAW!</button>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="main-container">
+
+    <!-- LEFT: Winners List -->
+    <div class="winners-panel" id="leftWinnersPanel">
+        <h2>🏆 WINNERS LIST</h2>
+        <div class="winners-scroll" id="winnersList">
+            <div class="no-winners">🎯 No winners yet.<br>Start the draw!</div>
+        </div>
+    </div>
+
+    <!-- CENTER: Main Draw -->
+    <div class="center-panel">
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalCount">200</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="remainingCount">200</div>
+                <div class="stat-label">Remaining Participants</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="drawnCount">0</div>
+                <div class="stat-label">Prizes Drawn</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="roundCount">0</div>
+                <div class="stat-label">Rounds</div>
+            </div>
+        </div>
+
+        <!-- Draw Area -->
+        <div class="draw-area">
+            <div class="inline-prize-preview" id="inlinePrizePreview">
+                <div class="prize-reveal-label">Tonight's Prize</div>
+                <div class="prize-reveal-name" id="inlinePrizeName">Lucky Prize</div>
+                <div class="inline-prize-details">
+                    <div id="inlineImageWrap">
+                        <div class="prize-reveal-no-image inline-prize-image" id="inlineNoImage">🎁</div>
+                        <img id="inlinePrizeImage" class="prize-reveal-image inline-prize-image" src="" alt="Prize" style="display:none;">
+                    </div>
+                    <div class="inline-prize-results">
+                        <div class="rolling-display" id="rollingDisplay">
+                            <div class="rolling-name" id="rollingName">Ready to draw!</div>
+                        </div>
+                        <div class="winner-announcement" id="inlineWinnerAnnouncement">
+                            <div class="congrats-text">CONGRATULATIONS!</div>
+                            <div class="winner-names-list" id="inlineWinnerNamesList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="draw-mode-label" id="drawModeLabel"></div>
+
+            <!-- Buttons -->
+            <div class="controls">
+                <button class="btn-start-draw" id="btnStartDraw" onclick="initiateDraw()">🎁 SHOW PRIZE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT: Alternating Winners List -->
+    <div class="winners-panel" id="rightWinnersPanel">
+        <h2>🏆 WINNERS LIST</h2>
+        <div class="winners-scroll" id="winnersListRight">
+            <div class="no-winners">🎯 Results will appear here.</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Confetti -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+// =====================================================
+//  200 RANDOM NAMES
+// =====================================================
+const originalNames = [
+    "Aiden Blackwood",    "Sophia Hartwell",    "Liam Thornton",      "Emma Caldwell",
+    "Noah Whitfield",     "Olivia Stanton",     "Mason Fairchild",    "Ava Pemberton",
+    "Ethan Holloway",     "Isabella Langford",  "Lucas Ashford",      "Mia Kensington",
+    "Oliver Davenport",   "Charlotte Wyndham",  "Elijah Cromwell",    "Amelia Foxworth",
+    "James Alderton",     "Harper Sinclair",    "Benjamin Radcliffe", "Evelyn Beaumont",
+    "Alexander Stirling", "Abigail Lockwood",   "Henry Whitmore",     "Emily Ashworth",
+    "Sebastian Colton",   "Elizabeth Merriweather","Jack Dunmore",    "Sofia Ravenswood",
+    "Daniel Hathaway",    "Avery Nightingale",  "Matthew Kingsley",   "Ella Whitehurst",
+    "Joseph Blackstone",  "Scarlett Harrington","Samuel Westbrook",   "Grace Pennington",
+    "David Ashby",        "Chloe Ravensdale",   "Carter Whitfield",   "Victoria Langley",
+    "Wyatt Thornbury",    "Riley Ashdown",      "John Castleton",     "Aria Blackwell",
+    "Owen Fairfax",       "Lily Stonebridge",   "Dylan Hartley",      "Zoey Whitmore",
+    "Luke Pemberton",     "Nora Alderton",      "Gabriel Foxley",     "Hannah Crompton",
+    "Anthony Wyndham",    "Layla Kensington",   "Isaac Davenport",    "Eleanor Stirling",
+    "Grayson Lockwood",   "Lillian Radcliffe",  "Lincoln Beaumont",   "Addison Foxworth",
+    "Joshua Colton",      "Aubrey Dunmore",     "Christopher Hathaway","Ellie Ravenswood",
+    "Andrew Nightingale", "Stella Kingsley",    "Theodore Whitehurst","Natalie Blackstone",
+    "Caleb Harrington",   "Zoe Westbrook",      "Ryan Pennington",    "Leah Ashby",
+    "Nathan Ravensdale",  "Hazel Whitfield",    "Adrian Langley",     "Violet Thornbury",
+    "Christian Ashdown",  "Aurora Castleton",   "Jonah Blackwell",    "Savannah Fairfax",
+    "Levi Stonebridge",   "Audrey Hartley",     "Isaiah Whitmore",    "Brooklyn Alderton",
+    "Thomas Foxley",      "Bella Crompton",     "Charles Wyndham",    "Claire Kensington",
+    "Josiah Davenport",   "Skylar Stirling",    "Colton Lockwood",    "Lucy Radcliffe",
+    "Jordan Beaumont",    "Paisley Foxworth",   "Hunter Colton",      "Everly Dunmore",
+    "Brayden Hathaway",   "Anna Ravenswood",    "Dominic Nightingale","Caroline Kingsley",
+    "Austin Whitehurst",  "Genesis Blackstone", "Evan Harrington",    "Aaliyah Westbrook",
+    "Gavin Pennington",   "Kennedy Ashby",      "Connor Ravensdale",  "Sadie Whitfield",
+    "Eli Langley",        "Hailey Thornbury",   "Carson Ashdown",     "Madelyn Castleton",
+    "Camden Blackwell",   "Peyton Fairfax",     "Jaxon Stonebridge",  "Ruby Hartley",
+    "Easton Whitmore",    "Serenity Alderton",  "Bentley Foxley",     "Willow Crompton",
+    "Zachary Wyndham",    "Mackenzie Kensington","Blake Davenport",   "Rylee Stirling",
+    "Landon Lockwood",    "Lydia Radcliffe",    "Weston Beaumont",    "Piper Foxworth",
+    "Micah Colton",       "Naomi Dunmore",      "Brody Hathaway",     "Jade Ravenswood",
+    "Logan Nightingale",  "Taylor Kingsley",    "Nolan Whitehurst",   "Alexis Blackstone",
+    "Ryder Harrington",   "Kylie Westbrook",    "Asher Pennington",   "Jasmine Ashby",
+    "Jace Ravensdale",    "Morgan Whitfield",   "Greyson Langley",    "Destiny Thornbury",
+    "Tristan Ashdown",    "Paige Castleton",    "Declan Blackwell",   "Autumn Fairfax",
+    "Emmett Stonebridge", "Faith Hartley",      "Silas Whitmore",     "Stephanie Alderton",
+    "Sawyer Foxley",      "Isabelle Crompton",  "Maverick Wyndham",   "Alexandra Kensington",
+    "Kai Davenport",      "Molly Stirling",     "Rowan Lockwood",     "Brianna Radcliffe",
+    "Axel Beaumont",      "Kaitlyn Foxworth",   "Jaxson Colton",      "Gianna Dunmore",
+    "Jameson Hathaway",   "Valentina Ravenswood","Everett Nightingale","Adriana Kingsley",
+    "Caden Whitehurst",   "Ariana Blackstone",  "Bryson Harrington",  "Melanie Westbrook",
+    "Zane Pennington",    "Annabelle Ashby",    "Hayden Ravensdale",  "Samantha Whitfield",
+    "Miles Langley",      "Alyssa Thornbury",   "Jude Ashdown",       "Kayla Castleton",
+    "Maddox Blackwell",   "Allison Fairfax",    "Arlo Stonebridge",   "Makayla Hartley",
+    "Rhett Whitmore",     "Brooke Alderton",    "Finn Foxley",        "Mariah Crompton",
+    "Atticus Wyndham",    "Cassidy Kensington", "Beckett Davenport",  "Jade Stirling",
+    "Remi Lockwood",      "Katelyn Radcliffe",  "Zion Beaumont",      "Presley Foxworth",
+    "Phoenix Colton",     "Delilah Dunmore",    "Crew Hathaway",      "Sienna Ravenswood",
+    "Beau Nightingale",   "Camila Kingsley",    "Ace Whitehurst",     "Kinsley Blackstone"
+];
+
+// =====================================================
+//  PREDEFINED PRIZE QUEUE
+//  Replace the placeholder names in these arrays with the real item names.
+// =====================================================
+const lowPrizeNames = [
+    'Nitori Seat Cooling Pad',
+    'Selfie Stick Tripod with Bluetooth Control',
+    'Baseus Earbuds',
+    'Jisulife Handheld Fan',
+    'Pineng 20kmAH MAG Safe WirelessCharger (22.5W Fast Charge CCC)'
+];
+
+const mediumPrizeNames = [
+    'Montigo Midtown Ace Bottle Mega (950ml)',
+    'Nexode GAN Robot 65W',
+    'Body Shop Gift Set',
+    'Hooga Fragrance Gift Set'
+];
+
+const highPrizeNames = [
+    'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)',
+    'Levoit Core 400S Smart Wifi Air',
+    'Arzopa Portable Monitor Z3FC 180Hz 16.1',
+    'WANBO Cube 2',
+    'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid',
+    'Marshall Stanmore III Speaker',
+    'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD',
+    'MSI Claw 8 AI+ 8 inch Gaming Handheld (Core Ultra 7 258V 32GB RAM/1TB SSD) A2VM-016 + (1 Year Warranty)'
+];
+
+const prizeImages = {
+    'Nitori Seat Cooling Pad': 'images/Nitori Chair Seat U-Cool SP.jpg',
+    'Selfie Stick Tripod with Bluetooth Control': 'images/TNW T26 Pro Mini Selfie Stick Tripod with Zoom Bluetooth Control.jpg',
+    'Baseus Earbuds': 'images/Earbud Baseus WM01.jpg',
+    'Jisulife Handheld Fan': 'images/Jisulife Handheld Fan 5 with Lanyard (4500mAH).jpg',
+    'Pineng 20kmAH MAG Safe WirelessCharger (22.5W Fast Charge CCC)': 'images/Pineng PN-702PD 20kmAH Magsafe Wireless Charge.jpeg',
+    'Montigo Midtown Ace Bottle Mega (950ml)': 'images/Montigo Midtown Ace Bottle Mega 950ml.jpg',
+    'Nexode GAN Robot 65W': 'images/Nexode Gan Robot 65W.jpg',
+    'Body Shop Gift Set': 'images/Body Shop Gift Set.jpg',
+    'Hooga Fragrance Gift Set': 'images/Hooga Black Series Gift Set.jpg',
+    'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)': 'images/Ugreen Powerbank Nexode (20kmAH 65W Fast Charge CCC).jpg',
+    'Levoit Core 400S Smart Wifi Air': 'images/Levoit Core 400S Smart Wifi Air.jpg',
+    'Arzopa Portable Monitor Z3FC 180Hz 16.1': 'images/Arzopa Portable Monitor Z3FC 180Hz.jpg',
+    'WANBO Cube 2': 'images/WANBO Cube 2.jpg',
+    'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid': 'images/Ninja 11-in-1 Smart Multi-Cooker  SmartLID.jpg',
+    'Marshall Stanmore III Speaker': 'images/Marshall Stanmore 3.jpg',
+    'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD': 'images/Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD.jpg',
+    'MSI Claw 8 AI+ 8 inch Gaming Handheld (Core Ultra 7 258V 32GB RAM/1TB SSD) A2VM-016 + (1 Year Warranty)': 'images/MSI Claw 8 AI+ 8 inch Gaming Handheld.jpg'
+};
+
+const prizeCatalog = [
+    ...lowPrizeNames.map(name => ({ tier: 'Low', name, image: prizeImages[name], emoji: '🎁', units: 10 })),
+    ...mediumPrizeNames.map(name => ({ tier: 'Medium', name, image: prizeImages[name], emoji: '🎁', units: 10 })),
+    ...highPrizeNames.map(name => ({
+        tier: 'High',
+        name,
+        image: prizeImages[name],
+        emoji: name.startsWith('Ugreen ') ? '🔋' : '🏆',
+        units: name.startsWith('Ugreen ') ? 3 : 1
+    }))
+];
+
+const prizeQueue = prizeCatalog.flatMap(prize =>
+    Array.from({ length: prize.units }, () => ({ ...prize }))
+);
+
+// =====================================================
+//  STATE
+// =====================================================
+let participants   = [...originalNames];
+let winners        = [];
+let pendingWinners = [];
+let isDrawing      = false;
+let roundNumber    = 0;
+let prizeIndex     = 0;
+let currentDrawCount = 1;
+let currentPrizeImage = null;
+let currentPrizeName  = '';
+let currentPrizeEmoji = '🎁';
+let currentPrizeTier = '';
+let rollingInterval = null;
+let confirmationTimeout = null;
+
+// =====================================================
+//  INIT
+// =====================================================
+function init() {
+    updatePrizeQueueStatus();
+    updateStats();
+}
+
+function updateStats() {
+    document.getElementById('totalCount').textContent     = originalNames.length;
+    document.getElementById('remainingCount').textContent = participants.length;
+    document.getElementById('drawnCount').textContent     = winners.length;
+    document.getElementById('roundCount').textContent     = roundNumber;
+}
+
+function updatePrizeQueueStatus() {
+    const status = document.getElementById('prizeCatalogStatus');
+    if (!status) return;
+
+    if (prizeIndex >= prizeQueue.length) {
+        status.innerHTML = '<strong>All prizes have been drawn.</strong>';
+        return;
+    }
+
+    const prize = prizeQueue[prizeIndex];
+    const remaining = prizeQueue
+        .slice(prizeIndex)
+        .filter(item => item.name === prize.name).length;
+    status.innerHTML = `${prize.emoji} ${prize.name} &middot; ${remaining} unit${remaining === 1 ? '' : 's'} remaining`;
+}
+
+// =====================================================
+//  DRAW FLOW
+//  Step 1: initiateDraw  → show prize reveal overlay
+//  Step 2: beginActualDraw → start rolling animation
+//  Step 3: selectWinners → pick names
+//  Step 4: showWinnerAnnouncement → display results
+//  Step 5: confirmWinners → finalise & remove from pool
+// =====================================================
+
+function initiateDraw() {
+    if (isDrawing) return;
+    if (participants.length === 0) { alert('No more participants!'); return; }
+    if (prizeIndex >= prizeQueue.length) { alert('All prizes have been drawn!'); return; }
+
+    const prize = prizeQueue[prizeIndex];
+    const hideWinnersPanels = prize.tier === 'High';
+    document.getElementById('leftWinnersPanel').classList.toggle('hidden-for-high-prize', hideWinnersPanels);
+    document.getElementById('rightWinnersPanel').classList.toggle('hidden-for-high-prize', hideWinnersPanels);
+    const remainingUnits = prizeQueue
+        .slice(prizeIndex)
+        .filter(item => item.name === prize.name).length;
+    const batchSize = prize.tier === 'Low' || prize.tier === 'Medium'
+        ? 10
+        : prize.name === 'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)' ? 3 : 1;
+    currentDrawCount = Math.min(batchSize, remainingUnits, participants.length);
+    currentPrizeName = prize.name;
+    currentPrizeEmoji = prize.emoji;
+    currentPrizeImage = prize.image || null;
+    currentPrizeTier = prize.tier;
+
+    document.getElementById('rollingDisplay').style.display = 'none';
+    document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
+    document.getElementById('btnStartDraw').style.display = 'inline-block';
+
+    // Populate overlay
+    const revealImg    = document.getElementById('inlinePrizeImage');
+    const revealNoImg  = document.getElementById('inlineNoImage');
+    const revealName   = document.getElementById('inlinePrizeName');
+
+    revealName.textContent  = currentPrizeName;
+
+    if (currentPrizeImage) {
+        revealImg.src          = currentPrizeImage;
+        revealImg.style.display = 'block';
+        revealNoImg.style.display = 'none';
+    } else {
+        revealImg.style.display   = 'none';
+        revealNoImg.style.display = 'flex';
+        revealNoImg.textContent = currentPrizeEmoji;
+    }
+
+    document.getElementById('inlinePrizePreview').style.display = 'block';
+    document.getElementById('drawModeLabel').style.display = 'block';
+    const startButton = document.getElementById('btnStartDraw');
+    startButton.textContent = '🎰 START DRAW!';
+    startButton.onclick = beginActualDraw;
+
+    // Disable draw buttons while overlay is open
+}
+
+function beginActualDraw() {
+    if (!currentPrizeName) initiateDraw();
+
+    isDrawing = true;
+    pendingWinners = [];
+
+    document.getElementById('btnStartDraw').style.display = 'none';
+    document.getElementById('rollingDisplay').style.display = 'flex';
+
+    document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
+    document.getElementById('drawModeLabel').style.display = 'block';
+    document.getElementById('drawModeLabel').textContent =
+        `🎲 Drawing ${currentDrawCount} winner${currentDrawCount > 1 ? 's' : ''}...`;
+
+    const rollingName = document.getElementById('rollingName');
+    rollingName.className = 'rolling-name' + (currentDrawCount > 1 ? ' multi' : '');
+
+    let rollCount = 0;
+    const maxRolls = 35;
+
+    rollingInterval = setInterval(() => {
+        const idx = Math.floor(Math.random() * participants.length);
+        rollingName.textContent = participants[idx];
+        rollCount++;
+        if (rollCount >= maxRolls) {
+            clearInterval(rollingInterval);
+            selectWinners(currentDrawCount);
+        }
+    }, 75);
+}
+
+function selectWinners(count) {
+    pendingWinners = [];
+    const pool = [...participants];
+    for (let i = 0; i < count; i++) {
+        if (!pool.length) break;
+        const idx = Math.floor(Math.random() * pool.length);
+        pendingWinners.push(pool.splice(idx, 1)[0]);
+    }
+    showWinnerAnnouncement();
+}
+
+function showWinnerAnnouncement() {
+    const announcement  = document.getElementById('inlineWinnerAnnouncement');
+    const namesList     = document.getElementById('inlineWinnerNamesList');
+    const rollingName   = document.getElementById('rollingName');
+
+    // Winner badges
+    namesList.innerHTML = '';
+    pendingWinners.forEach((name, i) => {
+        setTimeout(() => {
+            const badge = document.createElement('div');
+            badge.className   = 'winner-badge' + (currentPrizeTier === 'High' ? ' high-prize-winner' : '');
+            badge.textContent = name;
+            namesList.appendChild(badge);
+        }, i * 220);
+    });
+
+    // Update rolling display text
+    rollingName.textContent = pendingWinners.length === 1
+        ? `🏆 ${pendingWinners[0]}`
+        : `🏆 ${pendingWinners.length} Winners Selected!`;
+
+    announcement.classList.add('show');
+    document.getElementById('drawModeLabel').textContent = '';
+    document.getElementById('drawModeLabel').style.display = 'none';
+
+    launchConfetti(currentPrizeTier === 'High');
+    confirmationTimeout = setTimeout(confirmWinners, Math.max(2400, pendingWinners.length * 220 + 700));
+}
+
+function confirmWinners() {
+    clearTimeout(confirmationTimeout);
+    confirmationTimeout = null;
+    roundNumber++;
+    const confirmedWinnerCount = pendingWinners.length;
+
+    pendingWinners.forEach(name => {
+        const idx = participants.indexOf(name);
+        if (idx > -1) participants.splice(idx, 1);
+
+        winners.push({
+            name:     name,
+            prize:    currentPrizeName,
+            prizeImg: currentPrizeImage,
+            prizeEmoji: currentPrizeEmoji,
+            round:    roundNumber
+        });
+
+    });
+
+    updateStats();
+    renderWinnersList();
+
+    // Reset state
+    isDrawing      = false;
+    pendingWinners = [];
+    currentPrizeName = '';
+    currentPrizeImage = null;
+    currentPrizeTier = '';
+
+    prizeIndex += confirmedWinnerCount;
+    updatePrizeQueueStatus();
+    document.getElementById('btnStartDraw').style.display = 'inline-block';
+    document.getElementById('btnStartDraw').textContent = prizeIndex >= prizeQueue.length
+        ? '🎁 SHOW PRIZE'
+        : '🎁 SHOW NEXT PRIZE';
+    document.getElementById('btnStartDraw').onclick = initiateDraw;
+    document.getElementById('rollingDisplay').style.display = 'none';
+    document.getElementById('rollingName').textContent = 'Press Draw to Start!';
+    document.getElementById('rollingName').className   = 'rolling-name';
+    document.getElementById('drawModeLabel').textContent = '';
+    document.getElementById('drawModeLabel').style.display = 'none';
+}
+
+// =====================================================
+//  RENDER WINNERS LISTS
+// =====================================================
+function renderWinnersList() {
+    const leftList = document.getElementById('winnersList');
+    const rightList = document.getElementById('winnersListRight');
+    leftList.innerHTML = '';
+    rightList.innerHTML = '';
+
+    if (!winners.length) {
+        leftList.innerHTML = '<div class="no-winners">🎯 No winners yet.<br>Start the draw!</div>';
+        rightList.innerHTML = '<div class="no-winners">🎯 Results will appear here.</div>';
+        return;
+    }
+
+    // Group by round, newest first
+    const rounds = {};
+    winners.forEach(w => {
+        if (!rounds[w.round]) rounds[w.round] = [];
+        rounds[w.round].push(w);
+    });
+
+    const roundTargets = {};
+    let alternatingBatch = 0;
+    Object.keys(rounds).sort((a,b) => a - b).forEach(round => {
+        const prize = prizeCatalog.find(item => item.name === rounds[round][0].prize);
+        const isAlternatingBatch = prize && (prize.tier === 'Low' || prize.tier === 'Medium');
+        roundTargets[round] = isAlternatingBatch && alternatingBatch++ % 2 === 1
+            ? rightList
+            : leftList;
+    });
+
+    Object.keys(rounds).sort((a,b) => b - a).forEach(round => {
+        const list = roundTargets[round];
+        const firstWinner = rounds[round][0];
+        const entry = document.createElement('div');
+        entry.className = 'winner-entry winner-round-group';
+        entry.innerHTML = `
+            <div class="winner-entry-header">
+                ${firstWinner.prizeImg
+                    ? `<img src="${firstWinner.prizeImg}" class="prize-img-thumb" alt="prize">`
+                    : `<div style="width:45px;height:45px;border-radius:6px;background:rgba(255,215,0,0.1);display:flex;align-items:center;justify-content:center;font-size:1.4em;flex-shrink:0;">${firstWinner.prizeEmoji || '🎁'}</div>`
+                }
+                <div class="winner-entry-info">
+                    <div class="prize-round">Round ${firstWinner.round}</div>
+                    <div class="prize-name-tag">${firstWinner.prize}</div>
+                </div>
+            </div>
+            <div class="winner-group-names">
+                ${rounds[round].map(w => `<div class="winner-group-name">🏆 ${w.name}</div>`).join('')}
+            </div>
+        `;
+        list.appendChild(entry);
+    });
+}
+
+// =====================================================
+//  CONFETTI
+// =====================================================
+function launchConfetti(isHighPrize = false) {
+    const container = document.getElementById('confettiContainer');
+    container.innerHTML = '';
+    const colors = ['#ffd700','#ff6b35','#ff1493','#00ff88','#00bfff','#ff69b4','#adff2f','#ff4500'];
+    const shapes = ['50%', '0%', '0%'];
+
+    const pieceCount = isHighPrize ? 180 : 100;
+    for (let i = 0; i < pieceCount; i++) {
+        setTimeout(() => {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            const size = Math.random() * 10 + 6;
+            p.style.cssText = `
+                left: ${Math.random() * 100}vw;
+                width: ${size}px;
+                height: ${size}px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                border-radius: ${shapes[Math.floor(Math.random() * shapes.length)]};
+                animation-duration: ${Math.random() * 2.5 + 2}s;
+                animation-delay: ${Math.random() * 0.8}s;
+                opacity: 1;
+            `;
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 4500);
+        }, i * 25);
+    }
+}
+
+// =====================================================
+//  UTILITIES
+// =====================================================
+function resetAll() {
+    if (!confirm('⚠️ Reset ALL participants and winners? This cannot be undone.')) return;
+    participants   = [...originalNames];
+    winners        = [];
+    pendingWinners = [];
+    roundNumber    = 0;
+    prizeIndex     = 0;
+    isDrawing      = false;
+    currentPrizeName = '';
+    currentPrizeImage = null;
+    currentPrizeTier = '';
+    clearTimeout(confirmationTimeout);
+    confirmationTimeout = null;
+    clearInterval(rollingInterval);
+
+    document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
+    document.getElementById('drawModeLabel').style.display = 'block';
+    document.getElementById('inlinePrizePreview').style.display = 'none';
+    document.getElementById('btnStartDraw').style.display = 'inline-block';
+    document.getElementById('btnStartDraw').textContent = '🎁 SHOW PRIZE';
+    document.getElementById('btnStartDraw').onclick = initiateDraw;
+    document.getElementById('rollingDisplay').style.display = 'none';
+    document.getElementById('rollingName').textContent = 'Press Draw to Start!';
+    document.getElementById('rollingName').className   = 'rolling-name';
+    document.getElementById('drawModeLabel').textContent = '';
+
+    renderWinnersList();
+    updatePrizeQueueStatus();
+    updateStats();
+}
+
+function clearWinners() {
+    if (!confirm('Clear the winners display list? (Removed participants stay removed)')) return;
+    winners = [];
+    renderWinnersList();
+    updateStats();
+}
+
+function exportWinners() {
+    if (!winners.length) { alert('No winners to export!'); return; }
+
+    let txt = '╔══════════════════════════════╗\n';
+    txt    += '║      LUCKY DRAW WINNERS       ║\n';
+    txt    += '╚══════════════════════════════╝\n\n';
+
+    const rounds = {};
+    winners.forEach(w => {
+        if (!rounds[w.round]) rounds[w.round] = [];
+        rounds[w.round].push(w);
+    });
+
+    Object.keys(rounds).forEach(r => {
+        txt += `── Round ${r} ──────────────────────\n`;
+        rounds[r].forEach(w => {
+            txt += `  🏆 ${w.name}  |  Prize: ${w.prize}\n`;
+        });
+        txt += '\n';
+    });
+
+    txt += `────────────────────────────────\n`;
+    txt += `Total Winners    : ${winners.length}\n`;
+    txt += `Remaining        : ${participants.length}\n`;
+    txt += `Total Rounds     : ${roundNumber}\n`;
+    txt += `Generated        : ${new Date().toLocaleString()}\n`;
+
+    const blob = new Blob([txt], { type: 'text/plain' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'lucky_draw_winners.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// =====================================================
+//  START
+// =====================================================
+init();
+</script>
+</body>
+</html>
