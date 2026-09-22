@@ -1129,6 +1129,7 @@ let currentPrizeEmoji = '🎁';
 let currentPrizeTier = '';
 let rollingInterval = null;
 let confirmationTimeout = null;
+let nextLowMediumPanel = 'left';
 
 // =====================================================
 //  INIT
@@ -1179,6 +1180,10 @@ function initiateDraw() {
     const hideWinnersPanels = prize.tier === 'High';
     document.getElementById('leftWinnersPanel').classList.toggle('hidden-for-high-prize', hideWinnersPanels);
     document.getElementById('rightWinnersPanel').classList.toggle('hidden-for-high-prize', hideWinnersPanels);
+    if (hideWinnersPanels) {
+        document.getElementById('winnersList').innerHTML = '';
+        document.getElementById('winnersListRight').innerHTML = '';
+    }
     const remainingUnits = prizeQueue
         .slice(prizeIndex)
         .filter(item => item.name === prize.name).length;
@@ -1313,7 +1318,10 @@ function confirmWinners() {
     });
 
     updateStats();
-    renderWinnersList();
+    if (currentPrizeTier === 'Low' || currentPrizeTier === 'Medium') {
+        renderWinnerPanel(nextLowMediumPanel, roundNumber);
+        nextLowMediumPanel = nextLowMediumPanel === 'left' ? 'right' : 'left';
+    }
 
     // Reset state
     isDrawing      = false;
@@ -1342,54 +1350,36 @@ function confirmWinners() {
 function renderWinnersList() {
     const leftList = document.getElementById('winnersList');
     const rightList = document.getElementById('winnersListRight');
-    leftList.innerHTML = '';
-    rightList.innerHTML = '';
+    leftList.innerHTML = '<div class="no-winners">🎯 No winners yet.<br>Start the draw!</div>';
+    rightList.innerHTML = '<div class="no-winners">🎯 Results will appear here.</div>';
+}
 
-    if (!winners.length) {
-        leftList.innerHTML = '<div class="no-winners">🎯 No winners yet.<br>Start the draw!</div>';
-        rightList.innerHTML = '<div class="no-winners">🎯 Results will appear here.</div>';
-        return;
-    }
+function renderWinnerPanel(panel, round) {
+    const list = document.getElementById(panel === 'right' ? 'winnersListRight' : 'winnersList');
+    const roundWinners = winners.filter(w => w.round === round);
+    list.innerHTML = '';
 
-    // Group by round, newest first
-    const rounds = {};
-    winners.forEach(w => {
-        if (!rounds[w.round]) rounds[w.round] = [];
-        rounds[w.round].push(w);
-    });
+    if (!roundWinners.length) return;
 
-    const roundTargets = {};
-    let alternatingBatch = 0;
-    Object.keys(rounds).sort((a,b) => a - b).forEach(round => {
-        const prize = prizeCatalog.find(item => item.name === rounds[round][0].prize);
-        const isAlternatingBatch = prize && (prize.tier === 'Low' || prize.tier === 'Medium');
-        roundTargets[round] = isAlternatingBatch && alternatingBatch++ % 2 === 1
-            ? rightList
-            : leftList;
-    });
-
-    Object.keys(rounds).sort((a,b) => b - a).forEach(round => {
-        const list = roundTargets[round];
-        const firstWinner = rounds[round][0];
-        const entry = document.createElement('div');
-        entry.className = 'winner-entry winner-round-group';
-        entry.innerHTML = `
-            <div class="winner-entry-header">
-                ${firstWinner.prizeImg
-                    ? `<img src="${firstWinner.prizeImg}" class="prize-img-thumb" alt="prize">`
-                    : `<div style="width:45px;height:45px;border-radius:6px;background:rgba(255,215,0,0.1);display:flex;align-items:center;justify-content:center;font-size:1.4em;flex-shrink:0;">${firstWinner.prizeEmoji || '🎁'}</div>`
-                }
-                <div class="winner-entry-info">
-                    <div class="prize-round">Round ${firstWinner.round}</div>
-                    <div class="prize-name-tag">${firstWinner.prize}</div>
-                </div>
+    const firstWinner = roundWinners[0];
+    const entry = document.createElement('div');
+    entry.className = 'winner-entry winner-round-group';
+    entry.innerHTML = `
+        <div class="winner-entry-header">
+            ${firstWinner.prizeImg
+                ? `<img src="${firstWinner.prizeImg}" class="prize-img-thumb" alt="prize">`
+                : `<div style="width:45px;height:45px;border-radius:6px;background:rgba(255,215,0,0.1);display:flex;align-items:center;justify-content:center;font-size:1.4em;flex-shrink:0;">${firstWinner.prizeEmoji || '🎁'}</div>`
+            }
+            <div class="winner-entry-info">
+                <div class="prize-round">Round ${firstWinner.round}</div>
+                <div class="prize-name-tag">${firstWinner.prize}</div>
             </div>
-            <div class="winner-group-names">
-                ${rounds[round].map(w => `<div class="winner-group-name">🏆 ${w.name}</div>`).join('')}
-            </div>
-        `;
-        list.appendChild(entry);
-    });
+        </div>
+        <div class="winner-group-names">
+            ${roundWinners.map(w => `<div class="winner-group-name">🏆 ${w.name}</div>`).join('')}
+        </div>
+    `;
+    list.appendChild(entry);
 }
 
 // =====================================================
@@ -1437,6 +1427,9 @@ function resetAll() {
     currentPrizeName = '';
     currentPrizeImage = null;
     currentPrizeTier = '';
+    nextLowMediumPanel = 'left';
+    document.getElementById('leftWinnersPanel').classList.remove('hidden-for-high-prize');
+    document.getElementById('rightWinnersPanel').classList.remove('hidden-for-high-prize');
     clearTimeout(confirmationTimeout);
     confirmationTimeout = null;
     clearInterval(rollingInterval);
