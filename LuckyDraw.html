@@ -514,35 +514,37 @@
 
         .inline-prize-details {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
             align-items: center;
             gap: 28px;
             width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         #inlineImageWrap {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 480px;
+            min-height: 540px;
         }
 
         .inline-prize-results {
             width: 100%;
-            max-width: 460px;
+            max-width: 660px;
             justify-self: center;
             min-width: 0;
             min-height: 430px;
         }
 
         .inline-prize-image {
-            width: min(360px, 70vw);
-            height: min(360px, 70vw);
+            width: min(500px, 75vw);
+            height: min(500px, 75vw);
             border-radius: 12px;
         }
 
         .inline-prize-preview > .prize-reveal-name {
-            font-size: 1.8em;
+            font-size: 2.2em;
             font-weight: 800;
             color: #ffe45c;
             text-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 28px rgba(255, 140, 0, 0.45);
@@ -602,7 +604,7 @@
         }
 
         .rolling-name.multi {
-            font-size: 0.95em;
+            font-size: 1.2em;
         }
 
         /* Winner Announcement */
@@ -619,7 +621,7 @@
 
         .winner-names-list {
             display: grid;
-            grid-template-columns: repeat(2, minmax(160px, 1fr));
+            grid-template-columns: repeat(2, minmax(200px, 1fr));
             gap: 10px;
             padding: 4px;
             width: 100%;
@@ -675,11 +677,11 @@
             border: 2px solid gold;
             border-radius: 25px;
             padding: 10px 16px;
-            min-height: 52px;
+            min-height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1em;
+            font-size: 1.3em;
             font-weight: bold;
             color: white;
             overflow-wrap: anywhere;
@@ -688,10 +690,14 @@
         }
 
         .winner-badge.high-prize-winner {
-            font-size: 1.45em;
-            min-height: 68px;
+            grid-column: 1 / -1;
+            font-size: 3.2em;
+            min-height: 140px;
             border-width: 3px;
-            text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.9), 0 0 40px rgba(255, 140, 0, 0.5);
+            animation-duration: 0.18s;
         }
 
         @media (max-width: 700px) {
@@ -915,7 +921,7 @@
 <div class="main-container">
 
     <!-- LEFT: Winners List -->
-    <div class="winners-panel" id="leftWinnersPanel">
+    <div class="winners-panel hidden-for-high-prize" id="leftWinnersPanel">
         <h2>🏆 WINNERS LIST</h2>
         <div class="winners-scroll" id="winnersList">
             <div class="no-winners">🎯 No winners yet.<br>Start the draw!</div>
@@ -977,7 +983,7 @@
     </div>
 
     <!-- RIGHT: Alternating Winners List -->
-    <div class="winners-panel" id="rightWinnersPanel">
+    <div class="winners-panel hidden-for-high-prize" id="rightWinnersPanel">
         <h2>🏆 WINNERS LIST</h2>
         <div class="winners-scroll" id="winnersListRight">
             <div class="no-winners">🎯 Results will appear here.</div>
@@ -1072,7 +1078,6 @@ let currentPrizeEmoji = '🎁';
 let currentPrizeTier = '';
 let rollingInterval = null;
 let confirmationTimeout = null;
-let nextLowMediumPanel = 'left';
 
 // =====================================================
 //  INIT
@@ -1143,13 +1148,6 @@ function initiateDraw() {
     if (prizeIndex >= prizeQueue.length) { alert('All prizes have been drawn!'); return; }
 
     const prize = prizeQueue[prizeIndex];
-    const hideWinnersPanels = prize.tier === 'High';
-    document.getElementById('leftWinnersPanel').classList.toggle('hidden-for-high-prize', hideWinnersPanels);
-    document.getElementById('rightWinnersPanel').classList.toggle('hidden-for-high-prize', hideWinnersPanels);
-    if (hideWinnersPanels) {
-        document.getElementById('winnersList').innerHTML = '';
-        document.getElementById('winnersListRight').innerHTML = '';
-    }
     const remainingUnits = prizeQueue
         .slice(prizeIndex)
         .filter(item => item.name === prize.name).length;
@@ -1171,7 +1169,9 @@ function initiateDraw() {
     const revealNoImg  = document.getElementById('inlineNoImage');
     const revealName   = document.getElementById('inlinePrizeName');
 
-    revealName.textContent  = currentPrizeName;
+    revealName.textContent  = currentDrawCount > 1
+        ? `${currentPrizeName} (${currentDrawCount}x)`
+        : currentPrizeName;
 
     if (currentPrizeImage) {
         revealImg.src          = currentPrizeImage;
@@ -1241,19 +1241,21 @@ function showWinnerAnnouncement() {
 
     // Winner badges
     namesList.innerHTML = '';
+    const badgeStagger = currentPrizeTier === 'High' ? 0 : 220;
     pendingWinners.forEach((name, i) => {
         setTimeout(() => {
             const badge = document.createElement('div');
             badge.className   = 'winner-badge' + (currentPrizeTier === 'High' ? ' high-prize-winner' : '');
             badge.textContent = name;
             namesList.appendChild(badge);
-        }, i * 220);
+        }, i * badgeStagger);
     });
 
     // Update rolling display text
     rollingName.textContent = pendingWinners.length === 1
         ? `🏆 ${pendingWinners[0]}`
-        : `🏆 ${pendingWinners.length} Winners Selected!`;
+        : '';
+    document.getElementById('rollingDisplay').style.display = pendingWinners.length === 1 ? 'flex' : 'none';
 
     announcement.classList.add('show');
     document.getElementById('drawModeLabel').textContent = '';
@@ -1284,10 +1286,6 @@ function confirmWinners() {
     });
 
     updateStats();
-    if (currentPrizeTier === 'Low' || currentPrizeTier === 'Medium') {
-        renderWinnerPanel(nextLowMediumPanel, roundNumber);
-        nextLowMediumPanel = nextLowMediumPanel === 'left' ? 'right' : 'left';
-    }
 
     // Reset state
     isDrawing      = false;
@@ -1320,33 +1318,6 @@ function renderWinnersList() {
     rightList.innerHTML = '<div class="no-winners">🎯 Results will appear here.</div>';
 }
 
-function renderWinnerPanel(panel, round) {
-    const list = document.getElementById(panel === 'right' ? 'winnersListRight' : 'winnersList');
-    const roundWinners = winners.filter(w => w.round === round);
-    list.innerHTML = '';
-
-    if (!roundWinners.length) return;
-
-    const firstWinner = roundWinners[0];
-    const entry = document.createElement('div');
-    entry.className = 'winner-entry winner-round-group';
-    entry.innerHTML = `
-        <div class="winner-entry-header">
-            ${firstWinner.prizeImg
-                ? `<img src="${firstWinner.prizeImg}" class="prize-img-thumb" alt="prize">`
-                : `<div style="width:45px;height:45px;border-radius:6px;background:rgba(255,215,0,0.1);display:flex;align-items:center;justify-content:center;font-size:1.4em;flex-shrink:0;">${firstWinner.prizeEmoji || '🎁'}</div>`
-            }
-            <div class="winner-entry-info">
-                <div class="prize-round">Round ${firstWinner.round}</div>
-                <div class="prize-name-tag">${firstWinner.prize}</div>
-            </div>
-        </div>
-        <div class="winner-group-names">
-            ${roundWinners.map(w => `<div class="winner-group-name">🏆 ${w.name}</div>`).join('')}
-        </div>
-    `;
-    list.appendChild(entry);
-}
 
 // =====================================================
 //  CONFETTI
@@ -1393,9 +1364,6 @@ function resetAll() {
     currentPrizeName = '';
     currentPrizeImage = null;
     currentPrizeTier = '';
-    nextLowMediumPanel = 'left';
-    document.getElementById('leftWinnersPanel').classList.remove('hidden-for-high-prize');
-    document.getElementById('rightWinnersPanel').classList.remove('hidden-for-high-prize');
     clearTimeout(confirmationTimeout);
     confirmationTimeout = null;
     clearInterval(rollingInterval);
