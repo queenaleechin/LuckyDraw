@@ -49,9 +49,9 @@
 
         /* ===== LEFT PANEL - Winners ===== */
         .winners-panel {
-            width: 260px;
-            min-width: 260px;
-            flex: 0 0 260px;
+            width: 300px;
+            min-width: 300px;
+            flex: 0 0 300px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 215, 0, 0.3);
             border-radius: 15px;
@@ -991,65 +991,7 @@
 
 <script>
 // =====================================================
-//  200 RANDOM NAMES
-// =====================================================
-const originalNames = [
-    "Aiden Blackwood",    "Sophia Hartwell",    "Liam Thornton",      "Emma Caldwell",
-    "Noah Whitfield",     "Olivia Stanton",     "Mason Fairchild",    "Ava Pemberton",
-    "Ethan Holloway",     "Isabella Langford",  "Lucas Ashford",      "Mia Kensington",
-    "Oliver Davenport",   "Charlotte Wyndham",  "Elijah Cromwell",    "Amelia Foxworth",
-    "James Alderton",     "Harper Sinclair",    "Benjamin Radcliffe", "Evelyn Beaumont",
-    "Alexander Stirling", "Abigail Lockwood",   "Henry Whitmore",     "Emily Ashworth",
-    "Sebastian Colton",   "Elizabeth Merriweather","Jack Dunmore",    "Sofia Ravenswood",
-    "Daniel Hathaway",    "Avery Nightingale",  "Matthew Kingsley",   "Ella Whitehurst",
-    "Joseph Blackstone",  "Scarlett Harrington","Samuel Westbrook",   "Grace Pennington",
-    "David Ashby",        "Chloe Ravensdale",   "Carter Whitfield",   "Victoria Langley",
-    "Wyatt Thornbury",    "Riley Ashdown",      "John Castleton",     "Aria Blackwell",
-    "Owen Fairfax",       "Lily Stonebridge",   "Dylan Hartley",      "Zoey Whitmore",
-    "Luke Pemberton",     "Nora Alderton",      "Gabriel Foxley",     "Hannah Crompton",
-    "Anthony Wyndham",    "Layla Kensington",   "Isaac Davenport",    "Eleanor Stirling",
-    "Grayson Lockwood",   "Lillian Radcliffe",  "Lincoln Beaumont",   "Addison Foxworth",
-    "Joshua Colton",      "Aubrey Dunmore",     "Christopher Hathaway","Ellie Ravenswood",
-    "Andrew Nightingale", "Stella Kingsley",    "Theodore Whitehurst","Natalie Blackstone",
-    "Caleb Harrington",   "Zoe Westbrook",      "Ryan Pennington",    "Leah Ashby",
-    "Nathan Ravensdale",  "Hazel Whitfield",    "Adrian Langley",     "Violet Thornbury",
-    "Christian Ashdown",  "Aurora Castleton",   "Jonah Blackwell",    "Savannah Fairfax",
-    "Levi Stonebridge",   "Audrey Hartley",     "Isaiah Whitmore",    "Brooklyn Alderton",
-    "Thomas Foxley",      "Bella Crompton",     "Charles Wyndham",    "Claire Kensington",
-    "Josiah Davenport",   "Skylar Stirling",    "Colton Lockwood",    "Lucy Radcliffe",
-    "Jordan Beaumont",    "Paisley Foxworth",   "Hunter Colton",      "Everly Dunmore",
-    "Brayden Hathaway",   "Anna Ravenswood",    "Dominic Nightingale","Caroline Kingsley",
-    "Austin Whitehurst",  "Genesis Blackstone", "Evan Harrington",    "Aaliyah Westbrook",
-    "Gavin Pennington",   "Kennedy Ashby",      "Connor Ravensdale",  "Sadie Whitfield",
-    "Eli Langley",        "Hailey Thornbury",   "Carson Ashdown",     "Madelyn Castleton",
-    "Camden Blackwell",   "Peyton Fairfax",     "Jaxon Stonebridge",  "Ruby Hartley",
-    "Easton Whitmore",    "Serenity Alderton",  "Bentley Foxley",     "Willow Crompton",
-    "Zachary Wyndham",    "Mackenzie Kensington","Blake Davenport",   "Rylee Stirling",
-    "Landon Lockwood",    "Lydia Radcliffe",    "Weston Beaumont",    "Piper Foxworth",
-    "Micah Colton",       "Naomi Dunmore",      "Brody Hathaway",     "Jade Ravenswood",
-    "Logan Nightingale",  "Taylor Kingsley",    "Nolan Whitehurst",   "Alexis Blackstone",
-    "Ryder Harrington",   "Kylie Westbrook",    "Asher Pennington",   "Jasmine Ashby",
-    "Jace Ravensdale",    "Morgan Whitfield",   "Greyson Langley",    "Destiny Thornbury",
-    "Tristan Ashdown",    "Paige Castleton",    "Declan Blackwell",   "Autumn Fairfax",
-    "Emmett Stonebridge", "Faith Hartley",      "Silas Whitmore",     "Stephanie Alderton",
-    "Sawyer Foxley",      "Isabelle Crompton",  "Maverick Wyndham",   "Alexandra Kensington",
-    "Kai Davenport",      "Molly Stirling",     "Rowan Lockwood",     "Brianna Radcliffe",
-    "Axel Beaumont",      "Kaitlyn Foxworth",   "Jaxson Colton",      "Gianna Dunmore",
-    "Jameson Hathaway",   "Valentina Ravenswood","Everett Nightingale","Adriana Kingsley",
-    "Caden Whitehurst",   "Ariana Blackstone",  "Bryson Harrington",  "Melanie Westbrook",
-    "Zane Pennington",    "Annabelle Ashby",    "Hayden Ravensdale",  "Samantha Whitfield",
-    "Miles Langley",      "Alyssa Thornbury",   "Jude Ashdown",       "Kayla Castleton",
-    "Maddox Blackwell",   "Allison Fairfax",    "Arlo Stonebridge",   "Makayla Hartley",
-    "Rhett Whitmore",     "Brooke Alderton",    "Finn Foxley",        "Mariah Crompton",
-    "Atticus Wyndham",    "Cassidy Kensington", "Beckett Davenport",  "Jade Stirling",
-    "Remi Lockwood",      "Katelyn Radcliffe",  "Zion Beaumont",      "Presley Foxworth",
-    "Phoenix Colton",     "Delilah Dunmore",    "Crew Hathaway",      "Sienna Ravenswood",
-    "Beau Nightingale",   "Camila Kingsley",    "Ace Whitehurst",     "Kinsley Blackstone"
-];
-
-// =====================================================
 //  PREDEFINED PRIZE QUEUE
-//  Replace the placeholder names in these arrays with the real item names.
 // =====================================================
 const lowPrizeNames = [
     'Nitori Seat Cooling Pad',
@@ -1116,7 +1058,8 @@ const prizeQueue = prizeCatalog.flatMap(prize =>
 // =====================================================
 //  STATE
 // =====================================================
-let participants   = [...originalNames];
+let originalNames  = [];
+let participants   = [];
 let winners        = [];
 let pendingWinners = [];
 let isDrawing      = false;
@@ -1134,9 +1077,32 @@ let nextLowMediumPanel = 'left';
 // =====================================================
 //  INIT
 // =====================================================
-function init() {
+async function init() {
+    const startButton = document.getElementById('btnStartDraw');
+    startButton.disabled = true;
+    startButton.textContent = 'LOADING PARTICIPANTS...';
+
+    try {
+        const response = await fetch('participant_names.txt', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        originalNames = (await response.text())
+            .split(/\r?\n/)
+            .map(name => name.trim())
+            .filter(Boolean);
+        participants = [...originalNames];
+    } catch (error) {
+        console.error('Unable to load participant_names.txt:', error);
+        document.getElementById('drawModeLabel').textContent =
+            'Unable to load participant_names.txt. Open this page through a local web server.';
+        startButton.textContent = 'PARTICIPANTS UNAVAILABLE';
+        return;
+    }
+
     updatePrizeQueueStatus();
     updateStats();
+    startButton.disabled = false;
+    startButton.textContent = '🎁 SHOW PRIZE';
 }
 
 function updateStats() {
