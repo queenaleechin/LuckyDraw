@@ -1,24 +1,27 @@
 # Lucky Draw System
 
-A single-page HTML lucky draw app with animated prize reveals, a rolling name picker, and a winners list.
+A single-page HTML lucky draw app with animated prize reveals, a rolling name picker, and a winners list that auto-syncs to an Excel file.
 
 ## Files
 
 - `LuckyDraw.html` — the app (open this in a browser)
+- `server.py` — local server that serves the app and saves the winners Excel file
 - `participant_names.txt` — list of participants, one name per line
 - `images/` — prize photos referenced by the app
+- `lib/xlsx.full.min.js` — offline copy of the SheetJS library, used to build the winners `.xlsx` file
 
 ## Setup
 
 1. Edit `participant_names.txt` and put one participant name per line. Blank lines are ignored.
 2. (Optional) Edit the prize lists inside `LuckyDraw.html` (`lowPrizeNames`, `mediumPrizeNames`, `highPrizeNames`, and the `prizeImages` map) if you want to change prizes or images.
-3. Because the page loads `participant_names.txt` via `fetch()`, it must be served over `http://`, not opened directly as a `file://` path (browsers block local file fetches). Start a local server from this folder:
+3. (Optional) Change `WINNERS_FILE_PATH` in `server.py` if you want the winners Excel file saved somewhere other than `C:\Users\queenach\OneDrive - Intel Corporation\Documents\AtomGPTWLuckyDraw\lucky_draw_winners.xlsx`.
+4. Because the page loads `participant_names.txt` via `fetch()` and saves winners through a server endpoint, it must be run through `server.py`, not opened directly as a `file://` path and not `python -m http.server` (that doesn't support saving). Start it from this folder:
 
    ```powershell
-   python -m http.server 8000
+   python server.py
    ```
 
-4. Open the app in your browser at:
+5. Open the app in your browser at:
 
    ```
    http://localhost:8000/LuckyDraw.html
@@ -30,8 +33,15 @@ A single-page HTML lucky draw app with animated prize reveals, a rolling name pi
 2. Click **🎁 SHOW PRIZE** to reveal the next prize in the queue.
 3. Click **🎰 START DRAW!** to start the rolling animation and pick winner(s).
 4. Watch the names roll, then the winner(s) are announced automatically with confetti.
-5. The draw confirms automatically after a short delay — winners are removed from the remaining participant pool and added to the Winners List panel(s).
+5. The draw confirms automatically after a short delay — winners are removed from the remaining participant pool, added to the Winners List panel(s), and the winners Excel file is updated automatically (see below).
 6. Click **🎁 SHOW NEXT PRIZE** to continue to the next prize, and repeat.
+
+## Winners Excel sync
+
+- Every time winners are confirmed, winners are cleared, or everything is reset, the app sends the full winners list to `server.py`, which writes it to the fixed path set by `WINNERS_FILE_PATH` (default `C:\Users\queenach\OneDrive - Intel Corporation\Documents\AtomGPTWLuckyDraw\lucky_draw_winners.xlsx`), overwriting the previous contents.
+- No file picker or extra clicks are needed — this happens silently in the background. The small status line under the draw button shows `✅ Synced ...` or `⚠️ Sync failed ...`.
+- This path is inside your OneDrive-synced folder, so the file uploads automatically and can be shared from there.
+- `server.py` must stay running for the sync to work; if you see a sync failure, make sure the terminal running `python server.py` is still open.
 
 ## Other controls
 
@@ -43,4 +53,5 @@ A single-page HTML lucky draw app with animated prize reveals, a rolling name pi
 
 - The stats bar at the top shows total participants, remaining participants, prizes drawn, and round count.
 - High-tier prizes hide the side winners panels during the draw for a bigger reveal.
-- If you see "Unable to load participant_names.txt", make sure you're accessing the page through `http://localhost:...` and not double-clicking the HTML file.
+- If you see "Unable to load participant_names.txt", make sure you're accessing the page through `http://localhost:...` (via `python server.py`) and not double-clicking the HTML file.
+

@@ -863,6 +863,15 @@
             line-height: 1.8;
         }
 
+        /* OneDrive Sync Status */
+        .onedrive-status {
+            width: 100%;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.78em;
+            margin-top: 10px;
+        }
+
         /* Responsive */
         @media (max-width: 1100px) {
             .main-container { flex-direction: column; }
@@ -978,6 +987,8 @@
             <div class="controls">
                 <button class="btn-start-draw" id="btnStartDraw" onclick="initiateDraw()">🎁 SHOW PRIZE</button>
             </div>
+
+            <div class="onedrive-status" id="onedriveStatus"></div>
         </div>
 
     </div>
@@ -995,6 +1006,7 @@
 <!-- Confetti -->
 <div class="confetti-container" id="confettiContainer"></div>
 
+<script src="lib/xlsx.full.min.js"></script>
 <script>
 // =====================================================
 //  PREDEFINED PRIZE QUEUE
@@ -1018,7 +1030,7 @@ const highPrizeNames = [
     'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)',
     'Levoit Core 400S Smart Wifi Air',
     'Arzopa Portable Monitor Z3FC 180Hz 16.1',
-    'WANBO Cube 2',
+    'WANBO Cube 2 Pro',
     'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid',
     'Marshall Stanmore III Speaker',
     'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD',
@@ -1038,7 +1050,7 @@ const prizeImages = {
     'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)': 'images/Ugreen Powerbank Nexode (20kmAH 65W Fast Charge CCC).jpg',
     'Levoit Core 400S Smart Wifi Air': 'images/Levoit Core 400S Smart Wifi Air.jpg',
     'Arzopa Portable Monitor Z3FC 180Hz 16.1': 'images/Arzopa Portable Monitor Z3FC 180Hz.jpg',
-    'WANBO Cube 2': 'images/WANBO Cube 2.jpg',
+    'WANBO Cube 2 Pro': 'images/WANBO Cube 2 Pro.png',
     'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid': 'images/Ninja 11-in-1 Smart Multi-Cooker  SmartLID.jpg',
     'Marshall Stanmore III Speaker': 'images/Marshall Stanmore 3.jpg',
     'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD': 'images/Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD.jpg',
@@ -1296,6 +1308,7 @@ function confirmWinners() {
 
     prizeIndex += confirmedWinnerCount;
     updatePrizeQueueStatus();
+    syncWinnersToExcel();
     document.getElementById('btnStartDraw').style.display = 'inline-block';
     document.getElementById('btnStartDraw').textContent = prizeIndex >= prizeQueue.length
         ? '🎁 SHOW PRIZE'
@@ -1382,6 +1395,7 @@ function resetAll() {
     renderWinnersList();
     updatePrizeQueueStatus();
     updateStats();
+    syncWinnersToExcel();
 }
 
 function clearWinners() {
@@ -1389,6 +1403,7 @@ function clearWinners() {
     winners = [];
     renderWinnersList();
     updateStats();
+    syncWinnersToExcel();
 }
 
 function exportWinners() {
@@ -1425,6 +1440,40 @@ function exportWinners() {
     a.download = 'lucky_draw_winners.txt';
     a.click();
     URL.revokeObjectURL(url);
+}
+
+// =====================================================
+//  EXCEL SYNC
+//  Writes the winners workbook via the local server, which
+//  saves it to a fixed path (e.g. a OneDrive-synced folder)
+//  with no file picker or user interaction required.
+// =====================================================
+function updateOneDriveSyncStatus(text) {
+    const el = document.getElementById('onedriveStatus');
+    if (el) el.textContent = text;
+}
+
+async function syncWinnersToExcel() {
+    if (typeof XLSX === 'undefined') {
+        updateOneDriveSyncStatus('⚠️ Excel library failed to load');
+        return;
+    }
+    try {
+        const rows = [['Round', 'Winner Name', 'Prize']];
+        winners.forEach(w => rows.push([w.round, w.name, w.prize]));
+        const sheet = XLSX.utils.aoa_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, sheet, 'Winners');
+        const data = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+
+        const response = await fetch('/save-winners', { method: 'POST', body: data });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        updateOneDriveSyncStatus(`✅ Synced ${winners.length} winner(s) at ${new Date().toLocaleTimeString()}`);
+    } catch (err) {
+        console.error('Failed to sync winners to Excel file:', err);
+        updateOneDriveSyncStatus('⚠️ Sync failed: ' + err.message + ' (is server.py running?)');
+    }
 }
 
 // =====================================================
