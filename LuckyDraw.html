@@ -891,6 +891,85 @@
             .winner-announcement { min-height: 0; }
             .winner-names-list { min-height: 0; }
         }
+
+        /* Compact mode for short viewports (e.g. 1560x624) — no scrolling needed */
+        @media (max-height: 650px) {
+            body { overflow: hidden; }
+
+            html, body { height: 100%; }
+            body { display: flex; flex-direction: column; overflow: hidden; }
+
+            .header { padding: 10px 16px 4px; flex-shrink: 0; }
+            .header h1 { font-size: 1.6em; letter-spacing: 2px; line-height: 1.3; }
+            .header p { font-size: 0.8em; margin-top: 2px; }
+
+            .main-container { flex: 1; min-height: 0; width: 100%; margin: 0; padding: 6px 16px; gap: 6px; }
+            .center-panel { flex: 1; min-height: 0; gap: 6px; justify-content: center; }
+
+            .stats-bar { flex-shrink: 0; gap: 6px; }
+            .stat-item { padding: 5px 12px; }
+            .stat-item .stat-number { font-size: 1.5em; }
+            .stat-item .stat-label { font-size: 0.68em; }
+
+            .draw-area {
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 6px 4px;
+                overflow: hidden;
+            }
+
+            .inline-prize-preview { margin-bottom: 2px; }
+            .inline-prize-preview > .prize-reveal-name { font-size: 1.6em; margin: 0 0 4px; }
+            .prize-reveal-label { font-size: 0.85em; margin-bottom: 3px; letter-spacing: 2px; }
+
+            .inline-prize-details { grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr); gap: 12px; }
+            #inlineImageWrap { min-height: 0; }
+            .inline-prize-image, #inlineImageWrap .prize-reveal-no-image {
+                width: min(335px, 50vh);
+                height: min(335px, 50vh);
+                font-size: 5.2em;
+            }
+            .inline-prize-results {
+                height: min(340px, 50vh);
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .rolling-display { min-height: 50px; padding: 5px 8px; margin: 4px 0 6px; }
+            .rolling-name { font-size: 1.5em; }
+            .rolling-name.multi { font-size: 1em; }
+
+            .winner-announcement { min-height: 0; gap: 6px; padding: 0; justify-content: flex-end; }
+            .congrats-text { font-size: 1.1em; min-height: 0; }
+            .winner-names-list {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 5px;
+                padding: 2px;
+                min-height: 0;
+            }
+            .winner-badge {
+                height: min(48px, 7.7vh);
+                min-height: 0;
+                font-size: 0.9em;
+                line-height: 1.1;
+                padding: 3px 10px;
+                border-radius: 16px;
+            }
+            .winner-badge.high-prize-winner {
+                font-size: 2.2em;
+                height: min(90px, 15vh);
+                min-height: 0;
+                border-width: 3px;
+            }
+
+            .btn-start-draw { padding: 8px 28px; font-size: 1em; letter-spacing: 1.5px; }
+            .controls { margin-top: 3px; }
+            .draw-mode-label { font-size: 0.75em; margin-bottom: 0; min-height: 18px; }
+            .onedrive-status { margin-top: 3px; font-size: 0.65em; }
+        }
     </style>
 </head>
 <body>
@@ -963,7 +1042,6 @@
         <!-- Draw Area -->
         <div class="draw-area">
             <div class="inline-prize-preview" id="inlinePrizePreview">
-                <div class="prize-reveal-label">Tonight's Prize</div>
                 <div class="prize-reveal-name" id="inlinePrizeName">Lucky Prize</div>
                 <div class="inline-prize-details">
                     <div id="inlineImageWrap">
@@ -1026,6 +1104,11 @@ const mediumPrizeNames = [
     'Hooga Fragrance Gift Set'
 ];
 
+const voucherPrizeNames = [
+    'Theme Hi-Tea Set For 2 Pax',
+    'Theme Buffet Dinner For 2 Pax'
+];
+
 const highPrizeNames = [
     'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)',
     'Levoit Core 400S Smart Wifi Air',
@@ -1047,10 +1130,12 @@ const prizeImages = {
     'Nexode GAN Robot 65W': 'images/Nexode Gan Robot 65W.jpg',
     'Body Shop Gift Set': 'images/Body Shop Gift Set.jpg',
     'Hooga Fragrance Gift Set': 'images/Hooga Black Series Gift Set.jpg',
+    'Theme Hi-Tea Set For 2 Pax': 'images/1x Theme Hi-Tea Set for 2 pax.jpg',
+    'Theme Buffet Dinner For 2 Pax': 'images/1x Theme Buffet Dinner for 2 pax.jpg',
     'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)': 'images/Ugreen Powerbank Nexode (20kmAH 65W Fast Charge CCC).jpg',
     'Levoit Core 400S Smart Wifi Air': 'images/Levoit Core 400S Smart Wifi Air.jpg',
     'Arzopa Portable Monitor Z3FC 180Hz 16.1': 'images/Arzopa Portable Monitor Z3FC 180Hz.jpg',
-    'WANBO Cube 2 Pro': 'images/WANBO Cube 2 Pro.png',
+    'WANBO Cube 2 Pro': 'images/Wanbo Cube 2 Pro.png',
     'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid': 'images/Ninja 11-in-1 Smart Multi-Cooker  SmartLID.jpg',
     'Marshall Stanmore III Speaker': 'images/Marshall Stanmore 3.jpg',
     'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD': 'images/Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD.jpg',
@@ -1060,6 +1145,7 @@ const prizeImages = {
 const prizeCatalog = [
     ...lowPrizeNames.map(name => ({ tier: 'Low', name, image: prizeImages[name], emoji: '🎁', units: 10 })),
     ...mediumPrizeNames.map(name => ({ tier: 'Medium', name, image: prizeImages[name], emoji: '🎁', units: 10 })),
+    ...voucherPrizeNames.map(name => ({ tier: 'Voucher', name, image: prizeImages[name], emoji: '🎫', units: 1 })),
     ...highPrizeNames.map(name => ({
         tier: 'High',
         name,
@@ -1174,7 +1260,7 @@ function initiateDraw() {
 
     document.getElementById('rollingDisplay').style.display = 'none';
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
-    document.getElementById('btnStartDraw').style.display = 'inline-block';
+    document.getElementById('btnStartDraw').style.visibility = 'visible';
 
     // Populate overlay
     const revealImg    = document.getElementById('inlinePrizeImage');
@@ -1196,7 +1282,7 @@ function initiateDraw() {
     }
 
     document.getElementById('inlinePrizePreview').style.display = 'block';
-    document.getElementById('drawModeLabel').style.display = 'block';
+    document.getElementById('drawModeLabel').style.visibility = 'visible';
     const startButton = document.getElementById('btnStartDraw');
     startButton.textContent = '🎰 START DRAW!';
     startButton.onclick = beginActualDraw;
@@ -1210,11 +1296,11 @@ function beginActualDraw() {
     isDrawing = true;
     pendingWinners = [];
 
-    document.getElementById('btnStartDraw').style.display = 'none';
+    document.getElementById('btnStartDraw').style.visibility = 'hidden';
     document.getElementById('rollingDisplay').style.display = 'flex';
 
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
-    document.getElementById('drawModeLabel').style.display = 'block';
+    document.getElementById('drawModeLabel').style.visibility = 'visible';
     document.getElementById('drawModeLabel').textContent =
         `🎲 Drawing ${currentDrawCount} winner${currentDrawCount > 1 ? 's' : ''}...`;
 
@@ -1253,11 +1339,12 @@ function showWinnerAnnouncement() {
 
     // Winner badges
     namesList.innerHTML = '';
-    const badgeStagger = currentPrizeTier === 'High' ? 0 : 220;
+    const isBigReveal = currentPrizeTier === 'High' || currentPrizeTier === 'Voucher';
+    const badgeStagger = isBigReveal ? 2000 : 1200;
     pendingWinners.forEach((name, i) => {
         setTimeout(() => {
             const badge = document.createElement('div');
-            badge.className   = 'winner-badge' + (currentPrizeTier === 'High' ? ' high-prize-winner' : '');
+            badge.className   = 'winner-badge' + (isBigReveal ? ' high-prize-winner' : '');
             badge.textContent = name;
             namesList.appendChild(badge);
         }, i * badgeStagger);
@@ -1271,10 +1358,10 @@ function showWinnerAnnouncement() {
 
     announcement.classList.add('show');
     document.getElementById('drawModeLabel').textContent = '';
-    document.getElementById('drawModeLabel').style.display = 'none';
+    document.getElementById('drawModeLabel').style.visibility = 'hidden';
 
-    launchConfetti(currentPrizeTier === 'High');
-    confirmationTimeout = setTimeout(confirmWinners, Math.max(2400, pendingWinners.length * 220 + 700));
+    launchConfetti(isBigReveal);
+    confirmationTimeout = setTimeout(confirmWinners, Math.max(2400, pendingWinners.length * badgeStagger + 1200));
 }
 
 function confirmWinners() {
@@ -1309,7 +1396,7 @@ function confirmWinners() {
     prizeIndex += confirmedWinnerCount;
     updatePrizeQueueStatus();
     syncWinnersToExcel();
-    document.getElementById('btnStartDraw').style.display = 'inline-block';
+    document.getElementById('btnStartDraw').style.visibility = 'visible';
     document.getElementById('btnStartDraw').textContent = prizeIndex >= prizeQueue.length
         ? '🎁 SHOW PRIZE'
         : '🎁 SHOW NEXT PRIZE';
@@ -1318,7 +1405,7 @@ function confirmWinners() {
     document.getElementById('rollingName').textContent = 'Press Draw to Start!';
     document.getElementById('rollingName').className   = 'rolling-name';
     document.getElementById('drawModeLabel').textContent = '';
-    document.getElementById('drawModeLabel').style.display = 'none';
+    document.getElementById('drawModeLabel').style.visibility = 'hidden';
 }
 
 // =====================================================
@@ -1382,9 +1469,9 @@ function resetAll() {
     clearInterval(rollingInterval);
 
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
-    document.getElementById('drawModeLabel').style.display = 'block';
+    document.getElementById('drawModeLabel').style.visibility = 'hidden';
     document.getElementById('inlinePrizePreview').style.display = 'none';
-    document.getElementById('btnStartDraw').style.display = 'inline-block';
+    document.getElementById('btnStartDraw').style.visibility = 'visible';
     document.getElementById('btnStartDraw').textContent = '🎁 SHOW PRIZE';
     document.getElementById('btnStartDraw').onclick = initiateDraw;
     document.getElementById('rollingDisplay').style.display = 'none';
