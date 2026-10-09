@@ -39,6 +39,25 @@
             margin-top: 5px;
         }
 
+        .game-link {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 0.8em;
+            text-decoration: none;
+            border: 1px solid rgba(255,215,0,0.4);
+            border-radius: 20px;
+            padding: 6px 14px;
+            transition: all 0.3s;
+        }
+
+        .game-link:hover {
+            color: gold;
+            border-color: gold;
+        }
+
         .main-container {
             display: flex;
             gap: 15px;
@@ -872,6 +891,63 @@
             margin-top: 10px;
         }
 
+        /* Prize Jump (contingency control) */
+        .prize-jump-bar {
+            width: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            color: #aaa;
+            font-size: 0.8em;
+            flex-wrap: wrap;
+        }
+
+        .prize-jump-bar.show { display: flex; }
+
+        .prize-jump-bar select {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.95em;
+            max-width: 60vw;
+        }
+
+        .prize-jump-bar select option {
+            background: #1a1a4e;
+            color: white;
+        }
+
+        .controls-toggle {
+            position: fixed;
+            bottom: 14px;
+            right: 22px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: rgba(0, 0, 0, 0.35);
+            color: rgba(255, 215, 0, 0.5);
+            font-size: 1em;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .controls-toggle:hover {
+            color: gold;
+            border-color: gold;
+            background: rgba(255, 215, 0, 0.12);
+        }
+
+        .controls-toggle:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
         /* Responsive */
         @media (max-width: 1100px) {
             .main-container { flex-direction: column; }
@@ -916,8 +992,8 @@
                 min-height: 0;
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-start;
-                padding: 6px 4px;
+                justify-content: flex-end;
+                padding: 6px 4px 28px;
                 overflow: hidden;
             }
 
@@ -968,7 +1044,9 @@
             .btn-start-draw { padding: 8px 28px; font-size: 1em; letter-spacing: 1.5px; }
             .controls { margin-top: 3px; }
             .draw-mode-label { font-size: 0.75em; margin-bottom: 0; min-height: 18px; }
-            .onedrive-status { margin-top: 3px; font-size: 0.65em; }
+            .onedrive-status { margin-top: 3px; font-size: 0.65em; min-height: 14px; }
+            .prize-jump-bar { margin-top: 4px; font-size: 0.65em; }
+            .prize-jump-bar select { font-size: 0.85em; padding: 2px 6px; }
         }
     </style>
 </head>
@@ -978,6 +1056,7 @@
 <div class="header">
     <h1>🎉 LUCKY DRAW 🎉</h1>
     <p>Spin the wheel of fortune — Good luck to all participants!</p>
+    <a class="game-link" href="Games.html">🎮 Game Slides</a>
 </div>
 
 <!-- PRIZE REVEAL OVERLAY (shown before draw starts) -->
@@ -1067,6 +1146,12 @@
             </div>
 
             <div class="onedrive-status" id="onedriveStatus"></div>
+
+            <div class="prize-jump-bar" id="prizeJumpBar">
+                <label for="prizeJumpSelect">📍 Resume from:</label>
+                <select id="prizeJumpSelect" onchange="jumpToPrize(this.value)"></select>
+                <button class="panel-btn clear-winners-btn" style="width:auto; margin-top:0;" onclick="resetAll()">⚠️ Reset All</button>
+            </div>
         </div>
 
     </div>
@@ -1083,6 +1168,8 @@
 
 <!-- Confetti -->
 <div class="confetti-container" id="confettiContainer"></div>
+
+<button class="controls-toggle" id="controlsToggle" onclick="toggleControls()" title="Show/hide resume-from list">🎛</button>
 
 <script src="lib/xlsx.full.min.js"></script>
 <script>
@@ -1159,6 +1246,18 @@ const prizeQueue = prizeCatalog.flatMap(prize =>
     Array.from({ length: prize.units }, () => ({ ...prize }))
 );
 
+// Starting prizeQueue index for each prizeCatalog entry, used by the
+// "Resume from" dropdown (a manual contingency control, not a reordering
+// tool — the draw order itself is unchanged).
+const prizeCatalogOffsets = [];
+(() => {
+    let offset = 0;
+    prizeCatalog.forEach(prize => {
+        prizeCatalogOffsets.push(offset);
+        offset += prize.units;
+    });
+})();
+
 // =====================================================
 //  STATE
 // =====================================================
@@ -1202,10 +1301,117 @@ async function init() {
         return;
     }
 
+    loadDrawState();
+    populatePrizeJumpOptions();
+    syncPrizeJumpSelect();
     updatePrizeQueueStatus();
     updateStats();
     startButton.disabled = false;
-    startButton.textContent = '🎁 SHOW PRIZE';
+    updateStartButtonLabel();
+}
+
+function updateStartButtonLabel() {
+    document.getElementById('btnStartDraw').textContent = prizeIndex > 0 && prizeIndex < prizeQueue.length
+        ? '🎁 SHOW NEXT PRIZE'
+        : '🎁 SHOW PRIZE';
+}
+
+// =====================================================
+//  PRIZE JUMP (contingency control)
+//  Lets the host manually set which prize is up next, in
+//  case of an accidental refresh or lost state. The draw
+//  order/tiers themselves are never changed by this.
+// =====================================================
+function populatePrizeJumpOptions() {
+    const select = document.getElementById('prizeJumpSelect');
+    if (!select) return;
+    select.innerHTML = prizeCatalog.map((prize, i) =>
+        `<option value="${prizeCatalogOffsets[i]}">${i + 1}. ${prize.emoji} ${prize.name} (${prize.tier})</option>`
+    ).join('');
+}
+
+function syncPrizeJumpSelect() {
+    const select = document.getElementById('prizeJumpSelect');
+    if (!select) return;
+    let catalogIndex = prizeCatalog.findIndex((prize, i) =>
+        prizeIndex >= prizeCatalogOffsets[i] && prizeIndex < prizeCatalogOffsets[i] + prize.units
+    );
+    if (catalogIndex === -1) catalogIndex = prizeCatalog.length - 1;
+    select.value = String(prizeCatalogOffsets[catalogIndex]);
+}
+
+function jumpToPrize(value) {
+    const target = parseInt(value, 10);
+
+    // Any winners drawn at or after the chosen point are undone: their
+    // names go back into the pool and they're removed from the winners
+    // list, so storage reflects exactly "up to this point" only.
+    const toUndo = winners.filter(w => w.prizeQueuePosition >= target);
+
+    if (toUndo.length) {
+        const names = toUndo.map(w => w.name).join(', ');
+        if (!confirm(`Resuming from here will undo ${toUndo.length} winner(s) drawn after this point (${names}) and return them to the pool. Continue?`)) {
+            syncPrizeJumpSelect();
+            return;
+        }
+    }
+
+    winners = winners.filter(w => w.prizeQueuePosition < target);
+    toUndo.forEach(w => {
+        if (!participants.includes(w.name)) participants.push(w.name);
+    });
+    roundNumber = winners.length ? Math.max(...winners.map(w => w.round)) : 0;
+    prizeIndex = target;
+
+    updateStats();
+    renderWinnersList();
+    updatePrizeQueueStatus();
+    updateStartButtonLabel();
+    document.getElementById('btnStartDraw').onclick = initiateDraw;
+    syncWinnersToExcel();
+    saveDrawState();
+}
+
+function toggleControls() {
+    document.getElementById('prizeJumpBar').classList.toggle('show');
+}
+
+// =====================================================
+//  PERSISTENCE
+//  Remembers draw progress across page navigations (e.g.
+//  toggling to Games.html and back) using localStorage.
+// =====================================================
+const DRAW_STATE_KEY = 'luckyDrawState';
+
+function saveDrawState() {
+    localStorage.setItem(DRAW_STATE_KEY, JSON.stringify({
+        originalNamesLength: originalNames.length,
+        participants,
+        winners,
+        roundNumber,
+        prizeIndex
+    }));
+}
+
+function loadDrawState() {
+    const raw = localStorage.getItem(DRAW_STATE_KEY);
+    if (!raw) return;
+
+    try {
+        const saved = JSON.parse(raw);
+        if (saved.originalNamesLength !== originalNames.length) return;
+
+        participants = saved.participants;
+        winners      = saved.winners;
+        roundNumber  = saved.roundNumber;
+        prizeIndex   = saved.prizeIndex;
+    } catch (error) {
+        console.error('Unable to restore saved draw state:', error);
+    }
+}
+
+function clearDrawState() {
+    localStorage.removeItem(DRAW_STATE_KEY);
 }
 
 function updateStats() {
@@ -1261,6 +1467,8 @@ function initiateDraw() {
     document.getElementById('rollingDisplay').style.display = 'none';
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
     document.getElementById('btnStartDraw').style.visibility = 'visible';
+    document.getElementById('prizeJumpBar').classList.remove('show');
+    document.getElementById('controlsToggle').disabled = true;
 
     // Populate overlay
     const revealImg    = document.getElementById('inlinePrizeImage');
@@ -1379,7 +1587,8 @@ function confirmWinners() {
             prize:    currentPrizeName,
             prizeImg: currentPrizeImage,
             prizeEmoji: currentPrizeEmoji,
-            round:    roundNumber
+            round:    roundNumber,
+            prizeQueuePosition: prizeIndex
         });
 
     });
@@ -1396,6 +1605,9 @@ function confirmWinners() {
     prizeIndex += confirmedWinnerCount;
     updatePrizeQueueStatus();
     syncWinnersToExcel();
+    saveDrawState();
+    syncPrizeJumpSelect();
+    document.getElementById('controlsToggle').disabled = false;
     document.getElementById('btnStartDraw').style.visibility = 'visible';
     document.getElementById('btnStartDraw').textContent = prizeIndex >= prizeQueue.length
         ? '🎁 SHOW PRIZE'
@@ -1471,6 +1683,7 @@ function resetAll() {
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
     document.getElementById('drawModeLabel').style.visibility = 'hidden';
     document.getElementById('inlinePrizePreview').style.display = 'none';
+    document.getElementById('controlsToggle').disabled = false;
     document.getElementById('btnStartDraw').style.visibility = 'visible';
     document.getElementById('btnStartDraw').textContent = '🎁 SHOW PRIZE';
     document.getElementById('btnStartDraw').onclick = initiateDraw;
@@ -1480,9 +1693,11 @@ function resetAll() {
     document.getElementById('drawModeLabel').textContent = '';
 
     renderWinnersList();
+    syncPrizeJumpSelect();
     updatePrizeQueueStatus();
     updateStats();
     syncWinnersToExcel();
+    clearDrawState();
 }
 
 function clearWinners() {
@@ -1491,6 +1706,7 @@ function clearWinners() {
     renderWinnersList();
     updateStats();
     syncWinnersToExcel();
+    saveDrawState();
 }
 
 function exportWinners() {

@@ -5,9 +5,12 @@ A single-page HTML lucky draw app with animated prize reveals, a rolling name pi
 ## Files
 
 - `LuckyDraw.html` — the app (open this in a browser)
+- `Games.html` — a separate slideshow page for game-round pictures, to alternate with the lucky draw
 - `server.py` — local server that serves the app and saves the winners Excel file
 - `participant_names.txt` — list of participants, one name per line
 - `images/` — prize photos referenced by the app
+- `game_images/` — put your game slide pictures here
+- `game_slides.txt` — list of game slide filenames (from `game_images/`), one per line, in the order they should be shown
 - `lib/xlsx.full.min.js` — offline copy of the SheetJS library, used to build the winners `.xlsx` file
 
 ## Setup
@@ -54,4 +57,11 @@ A single-page HTML lucky draw app with animated prize reveals, a rolling name pi
 - The stats bar at the top shows total participants, remaining participants, prizes drawn, and round count.
 - High-tier prizes hide the side winners panels during the draw for a bigger reveal.
 - If you see "Unable to load participant_names.txt", make sure you're accessing the page through `http://localhost:...` (via `python server.py`) and not double-clicking the HTML file.
+
+## Alternating with game rounds (Games.html)
+
+1. Put your game slide pictures in `game_images/` and list their filenames in order in `game_slides.txt` (one per line). Each game round can have as many slides as you like (e.g. 2 slides per round) — they're just shown one after another.
+2. Click the **🎮 Game Slides** link in the Lucky Draw header to open `Games.html`, or go to `http://localhost:8000/Games.html` directly.
+3. Use **◀ Previous** / **Next ▶** (or the left/right arrow keys) to step through slides, and **⬅ Back to Lucky Draw** to return.
+4. During the event, keep both `LuckyDraw.html` and `Games.html` open in separate browser tabs and switch between them (e.g. `Ctrl+Tab`) to go back and forth between a lucky draw round and a game round.
 
