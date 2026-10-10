@@ -66,110 +66,7 @@
             margin: 0 auto;
         }
 
-        /* ===== LEFT PANEL - Winners ===== */
-        .winners-panel {
-            width: 300px;
-            min-width: 300px;
-            flex: 0 0 300px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 15px;
-            padding: 15px;
-            max-height: 88vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .winners-panel.hidden-for-high-prize {
-            display: none;
-        }
-
-        .winners-panel h2 {
-            color: gold;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-            padding-bottom: 10px;
-            flex-shrink: 0;
-        }
-
-        .winners-scroll {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .winner-entry {
-            background: rgba(255, 215, 0, 0.08);
-            border: 1px solid rgba(255, 215, 0, 0.25);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 8px;
-            animation: slideIn 0.5s ease;
-        }
-
-        .winner-entry-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .winner-entry .prize-img-thumb {
-            width: 45px;
-            height: 45px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid rgba(255,215,0,0.4);
-            flex-shrink: 0;
-        }
-
-        .winner-entry-info {
-            flex: 1;
-        }
-
-        .winner-entry .prize-round {
-            font-size: 0.68em;
-            color: gold;
-            font-weight: bold;
-        }
-
-        .winner-entry .prize-name-tag {
-            font-size: 0.72em;
-            color: #ffcc44;
-            margin-top: 1px;
-        }
-
-        .winner-entry .winner-name {
-            font-size: 0.82em;
-            color: white;
-            margin-top: 3px;
-            font-weight: 500;
-        }
-
-        .winner-round-group .winner-entry-header {
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-        }
-
-        .winner-group-names {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-top: 8px;
-        }
-
-        .winner-group-name {
-            color: white;
-            font-size: 1em;
-            font-weight: 600;
-            line-height: 1.3;
-            overflow-wrap: anywhere;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+        /* ===== CENTER PANEL ===== */
 
         .panel-btn {
             width: 100%;
@@ -562,6 +459,14 @@
             border-radius: 12px;
         }
 
+        .prize-placement-label {
+            font-size: 1em;
+            color: #aaa;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
         .inline-prize-preview > .prize-reveal-name {
             font-size: 2.2em;
             font-weight: 800;
@@ -719,6 +624,42 @@
             animation-duration: 0.18s;
         }
 
+        .announcement-actions {
+            display: none;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .announcement-actions.show { display: flex; }
+
+        .btn-confirm-winner, .btn-redraw-winner {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-confirm-winner {
+            background: linear-gradient(135deg, #00c851, #007e33);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,200,81,0.4);
+        }
+
+        .btn-confirm-winner:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,200,81,0.6); }
+
+        .btn-redraw-winner {
+            background: linear-gradient(135deg, #ff4d4d, #b30000);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,77,77,0.4);
+        }
+
+        .btn-redraw-winner:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,77,77,0.6); }
+
         @media (max-width: 700px) {
             .prize-result-layout {
                 flex-direction: column;
@@ -874,14 +815,6 @@
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
         ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.25); border-radius: 4px; }
 
-        .no-winners {
-            color: #555;
-            font-size: 0.82em;
-            text-align: center;
-            padding: 25px 10px;
-            line-height: 1.8;
-        }
-
         /* OneDrive Sync Status */
         .onedrive-status {
             width: 100%;
@@ -951,7 +884,7 @@
         /* Responsive */
         @media (max-width: 1100px) {
             .main-container { flex-direction: column; }
-            .winners-panel, .participants-panel {
+            .participants-panel {
                 width: 100%;
                 flex: 0 1 auto;
                 max-height: 300px;
@@ -992,24 +925,25 @@
                 min-height: 0;
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-end;
-                padding: 6px 4px 28px;
+                justify-content: flex-start;
+                padding: 40px 4px;
                 overflow: hidden;
             }
 
             .inline-prize-preview { margin-bottom: 2px; }
-            .inline-prize-preview > .prize-reveal-name { font-size: 1.6em; margin: 0 0 4px; }
+            .prize-placement-label { font-size: 0.75em; letter-spacing: 2px; margin-bottom: 0; }
+            .inline-prize-preview > .prize-reveal-name { font-size: 1.6em; margin: 0 0 12px; }
             .prize-reveal-label { font-size: 0.85em; margin-bottom: 3px; letter-spacing: 2px; }
 
             .inline-prize-details { grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr); gap: 12px; }
             #inlineImageWrap { min-height: 0; }
             .inline-prize-image, #inlineImageWrap .prize-reveal-no-image {
-                width: min(335px, 50vh);
-                height: min(335px, 50vh);
-                font-size: 5.2em;
+                width: min(360px, 54vh);
+                height: min(360px, 54vh);
+                font-size: 5.5em;
             }
             .inline-prize-results {
-                height: min(340px, 50vh);
+                height: min(360px, 54vh);
                 min-height: 0;
                 overflow: hidden;
             }
@@ -1027,7 +961,7 @@
                 min-height: 0;
             }
             .winner-badge {
-                height: min(48px, 7.7vh);
+                height: min(52px, 8.3vh);
                 min-height: 0;
                 font-size: 0.9em;
                 line-height: 1.1;
@@ -1040,6 +974,9 @@
                 min-height: 0;
                 border-width: 3px;
             }
+
+            .announcement-actions { gap: 8px; margin-top: 4px; }
+            .btn-confirm-winner, .btn-redraw-winner { padding: 6px 14px; font-size: 0.7em; }
 
             .btn-start-draw { padding: 8px 28px; font-size: 1em; letter-spacing: 1.5px; }
             .controls { margin-top: 3px; }
@@ -1055,7 +992,6 @@
 <!-- HEADER -->
 <div class="header">
     <h1>🎉 LUCKY DRAW 🎉</h1>
-    <p>Spin the wheel of fortune — Good luck to all participants!</p>
     <a class="game-link" href="Games.html">🎮 Game Slides</a>
 </div>
 
@@ -1087,40 +1023,13 @@
 <!-- MAIN CONTAINER -->
 <div class="main-container">
 
-    <!-- LEFT: Winners List -->
-    <div class="winners-panel hidden-for-high-prize" id="leftWinnersPanel">
-        <h2>🏆 WINNERS LIST</h2>
-        <div class="winners-scroll" id="winnersList">
-            <div class="no-winners">🎯 No winners yet.<br>Start the draw!</div>
-        </div>
-    </div>
-
     <!-- CENTER: Main Draw -->
     <div class="center-panel">
-
-        <!-- Stats Bar -->
-        <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-number" id="totalCount">200</div>
-                <div class="stat-label">Total Participants</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="remainingCount">200</div>
-                <div class="stat-label">Remaining Participants</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="drawnCount">0</div>
-                <div class="stat-label">Prizes Drawn</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="roundCount">0</div>
-                <div class="stat-label">Rounds</div>
-            </div>
-        </div>
 
         <!-- Draw Area -->
         <div class="draw-area">
             <div class="inline-prize-preview" id="inlinePrizePreview">
+                <div class="prize-placement-label" id="prizePlacementLabel"></div>
                 <div class="prize-reveal-name" id="inlinePrizeName">Lucky Prize</div>
                 <div class="inline-prize-details">
                     <div id="inlineImageWrap">
@@ -1134,6 +1043,10 @@
                         <div class="winner-announcement" id="inlineWinnerAnnouncement">
                             <div class="congrats-text">CONGRATULATIONS!</div>
                             <div class="winner-names-list" id="inlineWinnerNamesList"></div>
+                            <div class="announcement-actions" id="announcementActions">
+                                <button class="btn-confirm-winner" onclick="confirmWinners()">✅ Confirm Winner</button>
+                                <button class="btn-redraw-winner" onclick="redrawWinner()">🔄 Not Present — Redraw</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1154,14 +1067,6 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- RIGHT: Alternating Winners List -->
-    <div class="winners-panel hidden-for-high-prize" id="rightWinnersPanel">
-        <h2>🏆 WINNERS LIST</h2>
-        <div class="winners-scroll" id="winnersListRight">
-            <div class="no-winners">🎯 Results will appear here.</div>
-        </div>
     </div>
 
 </div>
@@ -1192,8 +1097,8 @@ const mediumPrizeNames = [
 ];
 
 const voucherPrizeNames = [
-    'Theme Hi-Tea Set For 2 Pax',
-    'Theme Buffet Dinner For 2 Pax'
+    'Voucher for 2-pax Theme Buffet @ RM148nett/pax (Sponsored by Iconic Hotel)',
+    'Voucher for Superior Room Night Stay with 2-pax breakfast (Sponsored by Iconic Hotel)'
 ];
 
 const highPrizeNames = [
@@ -1204,7 +1109,7 @@ const highPrizeNames = [
     'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid',
     'Marshall Stanmore III Speaker',
     'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD',
-    'MSI Claw 8 AI+ 8 inch Gaming Handheld (Core Ultra 7 258V 32GB RAM/1TB SSD) A2VM-016 + (1 Year Warranty)'
+    'MSI Claw 8 AI+ 8 inch Gaming Handheld (Core Ultra 7 258V 32GB RAM/1TB SSD)'
 ];
 
 const prizeImages = {
@@ -1217,8 +1122,8 @@ const prizeImages = {
     'Nexode GAN Robot 65W': 'images/Nexode Gan Robot 65W.jpg',
     'Body Shop Gift Set': 'images/Body Shop Gift Set.jpg',
     'Hooga Fragrance Gift Set': 'images/Hooga Black Series Gift Set.jpg',
-    'Theme Hi-Tea Set For 2 Pax': 'images/1x Theme Hi-Tea Set for 2 pax.jpg',
-    'Theme Buffet Dinner For 2 Pax': 'images/1x Theme Buffet Dinner for 2 pax.jpg',
+    'Voucher for 2-pax Theme Buffet @ RM148nett/pax (Sponsored by Iconic Hotel)': 'images/1x Theme Buffet Dinner for 2 pax.jpg',
+    'Voucher for Superior Room Night Stay with 2-pax breakfast (Sponsored by Iconic Hotel)': 'images/1x Superior Room for 2 pax.png',
     'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)': 'images/Ugreen Powerbank Nexode (20kmAH 65W Fast Charge CCC).jpg',
     'Levoit Core 400S Smart Wifi Air': 'images/Levoit Core 400S Smart Wifi Air.jpg',
     'Arzopa Portable Monitor Z3FC 180Hz 16.1': 'images/Arzopa Portable Monitor Z3FC 180Hz.jpg',
@@ -1226,7 +1131,7 @@ const prizeImages = {
     'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid': 'images/Ninja 11-in-1 Smart Multi-Cooker  SmartLID.jpg',
     'Marshall Stanmore III Speaker': 'images/Marshall Stanmore 3.jpg',
     'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD': 'images/Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD.jpg',
-    'MSI Claw 8 AI+ 8 inch Gaming Handheld (Core Ultra 7 258V 32GB RAM/1TB SSD) A2VM-016 + (1 Year Warranty)': 'images/MSI Claw 8 AI+ 8 inch Gaming Handheld.jpg'
+    'MSI Claw 8 AI+ 8 inch Gaming Handheld (Core Ultra 7 258V 32GB RAM/1TB SSD)': 'images/MSI Claw 8 AI+ 8 inch Gaming Handheld.jpg'
 };
 
 const prizeCatalog = [
@@ -1364,7 +1269,6 @@ function jumpToPrize(value) {
     prizeIndex = target;
 
     updateStats();
-    renderWinnersList();
     updatePrizeQueueStatus();
     updateStartButtonLabel();
     document.getElementById('btnStartDraw').onclick = initiateDraw;
@@ -1415,10 +1319,14 @@ function clearDrawState() {
 }
 
 function updateStats() {
-    document.getElementById('totalCount').textContent     = originalNames.length;
-    document.getElementById('remainingCount').textContent = participants.length;
-    document.getElementById('drawnCount').textContent     = winners.length;
-    document.getElementById('roundCount').textContent     = roundNumber;
+    const totalEl     = document.getElementById('totalCount');
+    const remainingEl = document.getElementById('remainingCount');
+    const drawnEl     = document.getElementById('drawnCount');
+    const roundEl     = document.getElementById('roundCount');
+    if (totalEl)     totalEl.textContent     = originalNames.length;
+    if (remainingEl) remainingEl.textContent = participants.length;
+    if (drawnEl)     drawnEl.textContent     = winners.length;
+    if (roundEl)     roundEl.textContent     = roundNumber;
 }
 
 function updatePrizeQueueStatus() {
@@ -1446,6 +1354,30 @@ function updatePrizeQueueStatus() {
 //  Step 5: confirmWinners → finalise & remove from pool
 // =====================================================
 
+function ordinal(n) {
+    const rem100 = n % 100;
+    if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
+    switch (n % 10) {
+        case 1: return `${n}st`;
+        case 2: return `${n}nd`;
+        case 3: return `${n}rd`;
+        default: return `${n}th`;
+    }
+}
+
+// Counts down from the last place toward 1st (the grand prize), so each
+// batch shows which overall placement(s) it's deciding, e.g. "100th-91st".
+// Voucher-tier prizes are excluded from the numbering entirely.
+function prizePlacementLabel(startIndex, count, tier) {
+    if (tier === 'Voucher') return '🏅 Special Draw';
+
+    const rangeStart = prizeQueue.slice(startIndex).filter(p => p.tier !== 'Voucher').length;
+    const rangeEnd = rangeStart - count + 1;
+    return count > 1
+        ? `🏅 ${ordinal(rangeStart)} - ${ordinal(rangeEnd)} Place`
+        : `🏅 ${ordinal(rangeStart)} Place`;
+}
+
 function initiateDraw() {
     if (isDrawing) return;
     if (participants.length === 0) { alert('No more participants!'); return; }
@@ -1455,17 +1387,19 @@ function initiateDraw() {
     const remainingUnits = prizeQueue
         .slice(prizeIndex)
         .filter(item => item.name === prize.name).length;
-    const batchSize = prize.tier === 'Low' || prize.tier === 'Medium'
-        ? 10
-        : prize.name === 'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)' ? 3 : 1;
+    const batchSize = prize.tier === 'Low' || prize.tier === 'Medium' ? 10 : 1;
     currentDrawCount = Math.min(batchSize, remainingUnits, participants.length);
     currentPrizeName = prize.name;
     currentPrizeEmoji = prize.emoji;
     currentPrizeImage = prize.image || null;
     currentPrizeTier = prize.tier;
 
+    document.getElementById('prizePlacementLabel').textContent =
+        prizePlacementLabel(prizeIndex, currentDrawCount, prize.tier);
+
     document.getElementById('rollingDisplay').style.display = 'none';
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
+    document.getElementById('announcementActions').classList.remove('show');
     document.getElementById('btnStartDraw').style.visibility = 'visible';
     document.getElementById('prizeJumpBar').classList.remove('show');
     document.getElementById('controlsToggle').disabled = true;
@@ -1569,12 +1503,56 @@ function showWinnerAnnouncement() {
     document.getElementById('drawModeLabel').style.visibility = 'hidden';
 
     launchConfetti(isBigReveal);
-    confirmationTimeout = setTimeout(confirmWinners, Math.max(2400, pendingWinners.length * badgeStagger + 1200));
+
+    const actions = document.getElementById('announcementActions');
+    if (isBigReveal) {
+        // High-tier/voucher prizes wait for the host to confirm the winner is
+        // present, or redraw someone else, instead of auto-confirming.
+        actions.classList.add('show');
+    } else {
+        actions.classList.remove('show');
+        confirmationTimeout = setTimeout(confirmWinners, Math.max(2400, pendingWinners.length * badgeStagger + 1200));
+    }
+}
+
+// Re-picks a new winner for the same prize (used when the drawn person
+// isn't present). The absent name is permanently removed from the pool
+// (they're confirmed not present, so they shouldn't be drawn again),
+// but no prize unit is consumed — only the person who confirms present
+// and is actually awarded the prize counts toward it.
+function redrawWinner() {
+    clearTimeout(confirmationTimeout);
+    confirmationTimeout = null;
+    document.getElementById('announcementActions').classList.remove('show');
+    document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
+
+    pendingWinners.forEach(name => {
+        const idx = participants.indexOf(name);
+        if (idx > -1) participants.splice(idx, 1);
+    });
+    saveDrawState();
+
+    const rollingName = document.getElementById('rollingName');
+    document.getElementById('rollingDisplay').style.display = 'flex';
+    rollingName.className = 'rolling-name';
+
+    let rollCount = 0;
+    const maxRolls = 15;
+    rollingInterval = setInterval(() => {
+        const idx = Math.floor(Math.random() * participants.length);
+        rollingName.textContent = participants[idx];
+        rollCount++;
+        if (rollCount >= maxRolls) {
+            clearInterval(rollingInterval);
+            selectWinners(currentDrawCount);
+        }
+    }, 75);
 }
 
 function confirmWinners() {
     clearTimeout(confirmationTimeout);
     confirmationTimeout = null;
+    document.getElementById('announcementActions').classList.remove('show');
     roundNumber++;
     const confirmedWinnerCount = pendingWinners.length;
 
@@ -1619,17 +1597,6 @@ function confirmWinners() {
     document.getElementById('drawModeLabel').textContent = '';
     document.getElementById('drawModeLabel').style.visibility = 'hidden';
 }
-
-// =====================================================
-//  RENDER WINNERS LISTS
-// =====================================================
-function renderWinnersList() {
-    const leftList = document.getElementById('winnersList');
-    const rightList = document.getElementById('winnersListRight');
-    leftList.innerHTML = '<div class="no-winners">🎯 No winners yet.<br>Start the draw!</div>';
-    rightList.innerHTML = '<div class="no-winners">🎯 Results will appear here.</div>';
-}
-
 
 // =====================================================
 //  CONFETTI
@@ -1681,6 +1648,7 @@ function resetAll() {
     clearInterval(rollingInterval);
 
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
+    document.getElementById('announcementActions').classList.remove('show');
     document.getElementById('drawModeLabel').style.visibility = 'hidden';
     document.getElementById('inlinePrizePreview').style.display = 'none';
     document.getElementById('controlsToggle').disabled = false;
@@ -1692,7 +1660,6 @@ function resetAll() {
     document.getElementById('rollingName').className   = 'rolling-name';
     document.getElementById('drawModeLabel').textContent = '';
 
-    renderWinnersList();
     syncPrizeJumpSelect();
     updatePrizeQueueStatus();
     updateStats();
@@ -1703,7 +1670,6 @@ function resetAll() {
 function clearWinners() {
     if (!confirm('Clear the winners display list? (Removed participants stay removed)')) return;
     winners = [];
-    renderWinnersList();
     updateStats();
     syncWinnersToExcel();
     saveDrawState();

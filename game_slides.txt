@@ -1,12 +1,14 @@
 title:Game 1: Mystery in Black
-Game1_Round1_0.jpg
-Game1_Round1_1.jpg
-Game1_Round2_0.jpg
-Game1_Round2_1.jpg
-Game1_Round3_0.jpg
-Game1_Round3_1.jpg
+Game1_Round1_0.png
+Game1_Round1_1.png
+Game1_Round2_0.png
+Game1_Round2_1.png
+Game1_Round3_0.png
+Game1_Round3_1.png
 Game1_Round4_0.jpg
 Game1_Round4_1.jpg
+Game1_Round5_0.jpg
+Game1_Round5_1.png
 title:Game 2: Guess the Movie
 Game2_Round1_0.png
 Game2_Round1_1.png
