@@ -218,6 +218,7 @@
 <script>
 let slides = [];
 let currentIndex = 0;
+const correctAnswerSound = new Audio('soundeffects/Lucky draw game (when show correct answer).mp3');
 
 async function init() {
     try {
@@ -263,6 +264,12 @@ function slideLabel(slide) {
     return isTitleSlide(slide) ? slide.replace(/^title:/i, '').trim() : slide;
 }
 
+// Round slides are named e.g. Game1_Round1_0.jpg (question) and
+// Game1_Round1_1.jpg (answer) — play the sound when an answer slide shows.
+function isAnswerSlide(slide) {
+    return /_1\.[a-z0-9]+$/i.test(slide);
+}
+
 function showSlide(index) {
     currentIndex = index;
     const slide = slides[currentIndex];
@@ -278,6 +285,11 @@ function showSlide(index) {
     document.getElementById('btnNext').disabled = currentIndex === slides.length - 1;
     document.getElementById('slideJumpSelect').value = String(currentIndex);
     localStorage.setItem('gameSlideIndex', String(currentIndex));
+
+    if (isAnswerSlide(slide)) {
+        correctAnswerSound.currentTime = 0;
+        correctAnswerSound.play().catch(() => {});
+    }
 }
 
 function nextSlide() {
