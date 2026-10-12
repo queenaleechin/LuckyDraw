@@ -1185,6 +1185,7 @@ const smallPrizeRollSound = new Audio('soundeffects/Lucky draw name (for SMALL p
 const heartbeatRollSound = new Audio('soundeffects/Lucky draw (heart beat for Top 1, 2, and 3).mp3');
 heartbeatRollSound.loop = true;
 const topPrizeNameSound = new Audio('soundeffects/Lucky draw name (for Top1 and Top2 prize).mp3');
+const hotelAndHighPrizeSound = new Audio('soundeffects/Lucky draw name (for hotel voucher and other high prizes).mp3');
 
 // =====================================================
 //  INIT
@@ -1514,6 +1515,10 @@ function showWinnerAnnouncement() {
             } else if (currentPrizeRank <= 2) {
                 topPrizeNameSound.currentTime = 0;
                 topPrizeNameSound.play().catch(() => {});
+            } else {
+                // Hotel vouchers and High-tier prizes ranked 3rd-10th
+                hotelAndHighPrizeSound.currentTime = 0;
+                hotelAndHighPrizeSound.play().catch(() => {});
             }
         }, i * badgeStagger);
     });
@@ -1677,6 +1682,10 @@ function resetAll() {
     heartbeatRollSound.currentTime = 0;
     smallPrizeRollSound.pause();
     smallPrizeRollSound.currentTime = 0;
+    topPrizeNameSound.pause();
+    topPrizeNameSound.currentTime = 0;
+    hotelAndHighPrizeSound.pause();
+    hotelAndHighPrizeSound.currentTime = 0;
 
     document.getElementById('inlineWinnerAnnouncement').classList.remove('show');
     document.getElementById('announcementActions').classList.remove('show');
