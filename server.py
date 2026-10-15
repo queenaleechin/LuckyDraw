@@ -38,13 +38,13 @@ def backup_state_to_git():
         blob_sha = blob.stdout.strip()
 
         mktree = subprocess.run(
-            ["git", "mktree"], cwd=REPO_DIR, capture_output=True, text=True,
-            input=f"100644 blob {blob_sha}\t{STATE_FILE_NAME}\n",
+            ["git", "mktree"], cwd=REPO_DIR, capture_output=True,
+            input=f"100644 blob {blob_sha}\t{STATE_FILE_NAME}\n".encode("utf-8"),
         )
         if mktree.returncode != 0:
-            print(f"[git-backup] mktree failed: {mktree.stderr.strip()}")
+            print(f"[git-backup] mktree failed: {mktree.stderr.decode().strip()}")
             return
-        tree_sha = mktree.stdout.strip()
+        tree_sha = mktree.stdout.decode().strip()
 
         commit = run_git(["commit-tree", tree_sha, "-m", "Lucky draw state backup"])
         if commit.returncode != 0:
