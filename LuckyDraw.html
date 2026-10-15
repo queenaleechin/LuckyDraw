@@ -1086,12 +1086,12 @@ const lowPrizeNames = [
     'Selfie Stick Tripod with Bluetooth Control',
     'Baseus Earbuds',
     'Jisulife Handheld Fan',
-    'Pineng 20kmAH MAG Safe WirelessCharger (22.5W Fast Charge CCC)'
+    'Pineng 20kmAH MAG Safe Wireless Charger (22.5W Fast Charge CCC)'
 ];
 
 const mediumPrizeNames = [
     'Montigo Midtown Ace Bottle Mega (950ml)',
-    'Nexode GAN Robot 65W',
+    'Nexode GAN Robot 65W Adapter',
     'Body Shop Gift Set',
     'Hooga Fragrance Gift Set'
 ];
@@ -1103,9 +1103,9 @@ const voucherPrizeNames = [
 
 const highPrizeNames = [
     'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)',
-    'Levoit Core 400S Smart Wifi Air',
+    'Levoit Core 400S Smart Wifi Air Purifier',
     'Arzopa Portable Monitor Z3FC 180Hz 16.1',
-    'WANBO Cube 2 Pro',
+    'WANBO Cube 2 Pro Projector',
     'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid',
     'Marshall Stanmore III Speaker',
     'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD',
@@ -1117,17 +1117,17 @@ const prizeImages = {
     'Selfie Stick Tripod with Bluetooth Control': 'images/TNW T26 Pro Mini Selfie Stick Tripod with Zoom Bluetooth Control.jpg',
     'Baseus Earbuds': 'images/Earbud Baseus WM01.jpg',
     'Jisulife Handheld Fan': 'images/Jisulife Handheld Fan 5 with Lanyard (4500mAH).jpg',
-    'Pineng 20kmAH MAG Safe WirelessCharger (22.5W Fast Charge CCC)': 'images/Pineng PN-702PD 20kmAH Magsafe Wireless Charge.jpeg',
+    'Pineng 20kmAH MAG Safe Wireless Charger (22.5W Fast Charge CCC)': 'images/Pineng PN-702PD 20kmAH Magsafe Wireless Charge.jpeg',
     'Montigo Midtown Ace Bottle Mega (950ml)': 'images/Montigo Midtown Ace Bottle Mega 950ml.jpg',
-    'Nexode GAN Robot 65W': 'images/Nexode Gan Robot 65W.jpg',
+    'Nexode GAN Robot 65W Adapter': 'images/Nexode Gan Robot 65W.jpg',
     'Body Shop Gift Set': 'images/Body Shop Gift Set.jpg',
     'Hooga Fragrance Gift Set': 'images/Hooga Black Series Gift Set.jpg',
     'Voucher for 2-pax Theme Buffet @ RM148nett/pax (Sponsored by Iconic Hotel)': 'images/1x Theme Buffet Dinner for 2 pax.jpg',
     'Voucher for Superior Room Night Stay with 2-pax breakfast (Sponsored by Iconic Hotel)': 'images/1x Superior Room for 2 pax.png',
     'Ugreen 20kmAH Powerbank Nexode (65W Fast Charge CCC)': 'images/Ugreen Powerbank Nexode (20kmAH 65W Fast Charge CCC).jpg',
-    'Levoit Core 400S Smart Wifi Air': 'images/Levoit Core 400S Smart Wifi Air.jpg',
+    'Levoit Core 400S Smart Wifi Air Purifier': 'images/Levoit Core 400S Smart Wifi Air.jpg',
     'Arzopa Portable Monitor Z3FC 180Hz 16.1': 'images/Arzopa Portable Monitor Z3FC 180Hz.jpg',
-    'WANBO Cube 2 Pro': 'images/Wanbo Cube 2 Pro.png',
+    'WANBO Cube 2 Pro Projector': 'images/Wanbo Cube 2 Pro.png',
     'Ninja 11-in-1 Smart Multi-Cooker with Smart Lid': 'images/Ninja 11-in-1 Smart Multi-Cooker  SmartLID.jpg',
     'Marshall Stanmore III Speaker': 'images/Marshall Stanmore 3.jpg',
     'Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD': 'images/Synology DS225+ (Intel Celeron) + 4TB HDD Synology HDD.jpg',
@@ -1182,8 +1182,8 @@ let currentPrizeRank = Infinity; // overall placement (1st, 2nd, 3rd, ...) for n
 let rollingInterval = null;
 let confirmationTimeout = null;
 const smallPrizeRollSound = new Audio('soundeffects/Lucky draw name (for SMALL prize).mp3');
-const heartbeatRollSound = new Audio('soundeffects/Lucky draw (heart beat for Top 1, 2, and 3).mp3');
-heartbeatRollSound.loop = true;
+const drumrollSound = new Audio('soundeffects/Lucky Draw (Drum roll for Top1 and Top2).m4a');
+drumrollSound.loop = true;
 const topPrizeNameSound = new Audio('soundeffects/Lucky draw name (for Top1 and Top2 prize).mp3');
 const hotelAndHighPrizeSound = new Audio('soundeffects/Lucky draw name (for hotel voucher and other high prizes).mp3');
 
@@ -1462,12 +1462,12 @@ function beginActualDraw() {
     rollingName.className = 'rolling-name' + (currentDrawCount > 1 ? ' multi' : '');
 
     if (currentPrizeRank <= 3) {
-        heartbeatRollSound.currentTime = 0;
-        heartbeatRollSound.play().catch(() => {});
+        drumrollSound.currentTime = 0;
+        drumrollSound.play().catch(() => {});
     }
 
     let rollCount = 0;
-    const maxRolls = currentPrizeRank <= 3 ? 133 : 35; // ~10s for top 3 (heartbeat), ~2.6s otherwise
+    const maxRolls = currentPrizeRank <= 3 ? 133 : 35; // ~10s for top 3 (drumroll), ~2.6s otherwise
 
     rollingInterval = setInterval(() => {
         const idx = Math.floor(Math.random() * participants.length);
@@ -1475,8 +1475,8 @@ function beginActualDraw() {
         rollCount++;
         if (rollCount >= maxRolls) {
             clearInterval(rollingInterval);
-            heartbeatRollSound.pause();
-            heartbeatRollSound.currentTime = 0;
+            drumrollSound.pause();
+            drumrollSound.currentTime = 0;
             selectWinners(currentDrawCount);
         }
     }, 75);
@@ -1501,7 +1501,7 @@ function showWinnerAnnouncement() {
     // Winner badges
     namesList.innerHTML = '';
     const isBigReveal = currentPrizeTier === 'High' || currentPrizeTier === 'Voucher';
-    const badgeStagger = isBigReveal ? 2000 : 2500;
+    const badgeStagger = isBigReveal ? 1300 : 1200;
     pendingWinners.forEach((name, i) => {
         setTimeout(() => {
             const badge = document.createElement('div');
@@ -1510,8 +1510,11 @@ function showWinnerAnnouncement() {
             namesList.appendChild(badge);
 
             if (!isBigReveal) {
-                smallPrizeRollSound.currentTime = 0;
-                smallPrizeRollSound.play().catch(() => {});
+                // Only play the small-prize sound once per draw, not for every name.
+                if (i === 0) {
+                    smallPrizeRollSound.currentTime = 0;
+                    smallPrizeRollSound.play().catch(() => {});
+                }
             } else if (currentPrizeRank <= 2) {
                 topPrizeNameSound.currentTime = 0;
                 topPrizeNameSound.play().catch(() => {});
@@ -1678,8 +1681,8 @@ function resetAll() {
     clearTimeout(confirmationTimeout);
     confirmationTimeout = null;
     clearInterval(rollingInterval);
-    heartbeatRollSound.pause();
-    heartbeatRollSound.currentTime = 0;
+    drumrollSound.pause();
+    drumrollSound.currentTime = 0;
     smallPrizeRollSound.pause();
     smallPrizeRollSound.currentTime = 0;
     topPrizeNameSound.pause();

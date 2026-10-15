@@ -1,4 +1,4 @@
-title:Game 1: Mystery in Black
+title:Game 1: Who's that Pokemon?
 Game1_Round1_0.png
 Game1_Round1_1.png
 Game1_Round2_0.png
