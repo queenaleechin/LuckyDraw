@@ -23,7 +23,10 @@ STATE_BRANCH = "lucky-draw-state"
 
 
 def run_git(args):
-    return subprocess.run(["git", *args], cwd=REPO_DIR, capture_output=True, text=True)
+    return subprocess.run(
+        ["git", *args], cwd=REPO_DIR, capture_output=True,
+        text=True, encoding="utf-8", errors="replace",
+    )
 
 
 def backup_state_to_git():
