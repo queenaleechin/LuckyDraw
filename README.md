@@ -46,6 +46,17 @@ A single-page HTML lucky draw app with animated prize reveals, a rolling name pi
 - This path is inside your OneDrive-synced folder, so the file uploads automatically and can be shared from there.
 - `server.py` must stay running for the sync to work; if you see a sync failure, make sure the terminal running `python server.py` is still open.
 
+## Backup laptop / crash recovery
+
+If the laptop running the draw hangs or crashes mid-event, you can continue the exact same draw (remaining participants, winners so far, current prize) on a different laptop:
+
+- **Automatic, no action needed during the event:** after every round, the app saves its progress to `draw_state.json` and `server.py` pushes it in the background to a dedicated `lucky-draw-state` git branch on the remote. This requires the repo to have a configured `origin` remote you can push to.
+- **On the backup laptop, when the primary one hangs:**
+  1. `git pull` (to get the latest code — only needed if the repo isn't already cloned there).
+  2. `python server.py -restore` — this fetches `lucky-draw-state` from `origin` and restores `draw_state.json` before starting the server.
+  3. Open `http://localhost:8000/LuckyDraw.html` and continue the draw as normal; it resumes from the last backed-up round.
+- The `lucky-draw-state` branch only ever holds the latest snapshot (force-pushed each time) — it's a transport mechanism, not meant to be browsed as history.
+
 ## Other controls
 
 - **Export Winners** — downloads a text file summary of all winners by round.

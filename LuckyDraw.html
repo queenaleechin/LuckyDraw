@@ -1212,7 +1212,7 @@ async function init() {
         return;
     }
 
-    loadDrawState();
+    await loadDrawState();
     populatePrizeJumpOptions();
     syncPrizeJumpSelect();
     updatePrizeQueueStatus();
@@ -1289,34 +1289,65 @@ function toggleControls() {
 // =====================================================
 //  PERSISTENCE
 //  Remembers draw progress across page navigations (e.g.
-//  toggling to Games.html and back) using localStorage.
+//  toggling to Games.html and back) using localStorage, and also backs it
+//  up to the server (which pushes it to a dedicated git branch) after
+//  every round. If this laptop hangs, a different laptop can `git pull`
+//  and run `python server.py -restore` to resume from that backup.
 // =====================================================
 const DRAW_STATE_KEY = 'luckyDrawState';
 
 function saveDrawState() {
-    localStorage.setItem(DRAW_STATE_KEY, JSON.stringify({
+    const state = {
         originalNamesLength: originalNames.length,
         participants,
         winners,
         roundNumber,
         prizeIndex
-    }));
+    };
+    localStorage.setItem(DRAW_STATE_KEY, JSON.stringify(state));
+
+    // Best-effort backup; failures (e.g. server not running) are silent
+    // since localStorage already covers the common same-laptop case.
+    fetch('/save-state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state)
+    }).catch(() => {});
 }
 
-function loadDrawState() {
+async function loadDrawState() {
     const raw = localStorage.getItem(DRAW_STATE_KEY);
-    if (!raw) return;
+    if (raw) {
+        try {
+            const saved = JSON.parse(raw);
+            if (saved.originalNamesLength === originalNames.length) {
+                participants = saved.participants;
+                winners      = saved.winners;
+                roundNumber  = saved.roundNumber;
+                prizeIndex   = saved.prizeIndex;
+                return;
+            }
+        } catch (error) {
+            console.error('Unable to restore saved draw state:', error);
+        }
+    }
 
+    // No usable local state — this is likely a fresh/backup laptop, so try
+    // the server-backed snapshot (draw_state.json, restored via
+    // `python server.py -restore` from the previous laptop's git backup).
     try {
-        const saved = JSON.parse(raw);
+        const response = await fetch('draw_state.json', { cache: 'no-store' });
+        if (!response.ok) return;
+        const saved = await response.json();
         if (saved.originalNamesLength !== originalNames.length) return;
 
         participants = saved.participants;
         winners      = saved.winners;
         roundNumber  = saved.roundNumber;
         prizeIndex   = saved.prizeIndex;
+        console.log('Resumed draw state from server-backed draw_state.json');
     } catch (error) {
-        console.error('Unable to restore saved draw state:', error);
+        // No backup available — fine for a normal first run.
     }
 }
 
