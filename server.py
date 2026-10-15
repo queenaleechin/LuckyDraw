@@ -39,7 +39,7 @@ def backup_state_to_git():
 
         mktree = subprocess.run(
             ["git", "mktree"], cwd=REPO_DIR, capture_output=True, text=True,
-            input=f"100644 blob {blob_sha}\t{STATE_FILE_NAME}\n",
+            newline="", input=f"100644 blob {blob_sha}\t{STATE_FILE_NAME}\n",
         )
         if mktree.returncode != 0:
             print(f"[git-backup] mktree failed: {mktree.stderr.strip()}")
